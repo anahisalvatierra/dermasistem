@@ -1,0 +1,83 @@
+<div class="login-page">
+
+  <!-- Orbes decorativos de fondo -->
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <div class="login-card">
+
+    <!-- Icono decorativo superior -->
+    <div class="brand-icon">
+      <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="24" cy="24" r="22" fill="url(#grad)" opacity="0.15"/>
+        <path d="M24 10C24 10 14 16 14 24C14 30.627 18.477 36 24 36C29.523 36 34 30.627 34 24C34 16 24 10 24 10Z"
+              fill="url(#grad)" opacity="0.8"/>
+        <path d="M20 24C20 21.791 21.791 20 24 20C26.209 20 28 21.791 28 24C28 26.209 26.209 28 24 28"
+              stroke="white" stroke-width="2" stroke-linecap="round"/>
+        <defs>
+          <linearGradient id="grad" x1="14" y1="10" x2="34" y2="36" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#a78bfa"/>
+            <stop offset="100%" stop-color="#7c3aed"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+
+    <div class="header">
+      <h1>Derm<span>Asistem</span></h1>
+      <p>Tu asistente inteligente para el cuidado de la piel</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+
+      <!-- Error global -->
+      <div class="error-banner" *ngIf="errorMessage">
+        <mat-icon>error_outline</mat-icon>
+        {{ errorMessage }}
+      </div>
+
+      <div class="field-wrapper">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Correo electrónico</mat-label>
+          <input matInput formControlName="email" type="email" autocomplete="email">
+          <mat-icon matSuffix>mail_outline</mat-icon>
+          <mat-error *ngIf="email?.hasError('required')">Campo obligatorio</mat-error>
+          <mat-error *ngIf="email?.hasError('email')">Ingresa un correo válido</mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="field-wrapper">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Contraseña</mat-label>
+          <input matInput [type]="hidePassword ? 'password' : 'text'"
+                 formControlName="password" autocomplete="current-password">
+          <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button"
+                  [attr.aria-label]="hidePassword ? 'Mostrar contraseña' : 'Ocultar contraseña'">
+            <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          <mat-error *ngIf="password?.hasError('required')">Campo obligatorio</mat-error>
+          <mat-error *ngIf="password?.hasError('minlength')">Mínimo 6 caracteres</mat-error>
+        </mat-form-field>
+      </div>
+
+      <button mat-raised-button class="submit-btn" type="submit"
+              [disabled]="loginForm.invalid || isLoading">
+        <mat-spinner *ngIf="isLoading" diameter="22" class="spinner"></mat-spinner>
+        <span *ngIf="!isLoading">Iniciar sesión</span>
+        <span *ngIf="isLoading">Verificando...</span>
+      </button>
+
+      <div class="divider">
+        <span></span><p>o</p><span></span>
+      </div>
+
+      <div class="links">
+        <a routerLink="/recuperar" class="link">¿Olvidaste tu contraseña?</a>
+        <span class="separator">·</span>
+        <a routerLink="/registro" class="link">Crear cuenta</a>
+      </div>
+
+    </form>
+  </div>
+</div>

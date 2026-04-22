@@ -1,0 +1,54 @@
+<div class="registro-page">
+  <div class="registro-card">
+
+    <div class="header">
+      <h1>Derm<span>Asistem</span></h1>
+      <p>Crea tu cuenta gratuita</p>
+    </div>
+
+    <form [formGroup]="registroForm" (ngSubmit)="onSubmit()">
+
+      <div class="error-banner" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+
+      <div class="exito-banner" *ngIf="exitoMessage">
+        {{ exitoMessage }}
+      </div>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Correo electrónico</mat-label>
+        <input matInput formControlName="email" type="email"/>
+        <mat-icon matSuffix>mail_outline</mat-icon>
+        <mat-error *ngIf="email?.hasError('required')">Campo obligatorio</mat-error>
+        <mat-error *ngIf="email?.hasError('email')">Correo inválido</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Contraseña</mat-label>
+        <input matInput type="password" formControlName="password"/>
+        <mat-icon matSuffix>lock_outline</mat-icon>
+        <mat-error *ngIf="password?.hasError('required')">Campo obligatorio</mat-error>
+        <mat-error *ngIf="password?.hasError('minlength')">Mínimo 6 caracteres</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Confirmar contraseña</mat-label>
+        <input matInput type="password" formControlName="confirmar"/>
+        <mat-icon matSuffix>lock_outline</mat-icon>
+        <mat-error *ngIf="confirmar?.hasError('required')">Campo obligatorio</mat-error>
+      </mat-form-field>
+
+      <button mat-raised-button class="submit-btn" type="submit"
+              [disabled]="registroForm.invalid || isLoading">
+        <span *ngIf="!isLoading">Crear cuenta</span>
+        <span *ngIf="isLoading">Creando cuenta...</span>
+      </button>
+
+      <div class="links">
+        <a routerLink="/login" class="link">¿Ya tienes cuenta? Inicia sesión</a>
+      </div>
+
+    </form>
+  </div>
+</div>
