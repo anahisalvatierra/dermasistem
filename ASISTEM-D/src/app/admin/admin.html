@@ -1,0 +1,380 @@
+<!-- ══════ LOGIN ADMIN ══════ -->
+<div class="admin-login" *ngIf="!autenticado && !cargando">
+  <div class="login-card">
+    <div class="login-icon">🔐</div>
+    <h1 class="login-title">Derm<em>Asistem</em></h1>
+    <p class="login-sub">Panel de Administración</p>
+
+    <div class="error-banner" *ngIf="loginError">⚠️ {{ loginError }}</div>
+
+    <div class="form-group">
+      <label class="form-label">Email de administrador</label>
+      <input class="form-input" type="email" [(ngModel)]="loginForm.email"
+             placeholder="admin@dermasistem.com"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Contraseña</label>
+      <input class="form-input" type="password" [(ngModel)]="loginForm.password"
+             placeholder="••••••••" (keyup.enter)="loginAdmin()"/>
+    </div>
+    <button class="btn-login" (click)="loginAdmin()" [disabled]="loginCargando">
+      {{ loginCargando ? 'Verificando...' : 'Acceder al panel' }}
+    </button>
+    <a routerLink="/landing" class="btn-volver-link">← Volver al sitio</a>
+  </div>
+</div>
+
+<!-- ══════ LOADING ══════ -->
+<div class="loading-screen" *ngIf="cargando">
+  <div class="spinner"></div>
+  <p>Cargando panel...</p>
+</div>
+
+<!-- ══════ PANEL ADMIN ══════ -->
+<div class="admin-wrap" *ngIf="autenticado && !cargando">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-text">Derm<em>Asistem</em></span>
+      <span class="brand-badge">Admin</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item" [class.active]="tabActiva === 'dashboard'"
+              (click)="tabActiva = 'dashboard'">
+        📊 Dashboard
+      </button>
+      <button class="nav-item" [class.active]="tabActiva === 'productos'"
+              (click)="tabActiva = 'productos'">
+        🌿 Productos
+        <span class="nav-badge">{{ productos.length }}</span>
+      </button>
+      <button class="nav-item" [class.active]="tabActiva === 'pedidos'"
+              (click)="tabActiva = 'pedidos'">
+        📦 Pedidos
+        <span class="nav-badge">{{ pedidos.length }}</span>
+      </button>
+      <button class="nav-item" [class.active]="tabActiva === 'usuarios'"
+              (click)="tabActiva = 'usuarios'">
+        👥 Usuarios
+        <span class="nav-badge">{{ usuarios.length }}</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a routerLink="/productos" class="footer-link">← Ver tienda</a>
+      <button class="btn-logout-admin" (click)="cerrarSesionAdmin()">Cerrar sesión</button>
+    </div>
+  </aside>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="admin-main">
+
+    <!-- ═══ DASHBOARD ═══ -->
+    <div *ngIf="tabActiva === 'dashboard'">
+      <div class="page-header">
+        <h2 class="page-title">Dashboard</h2>
+        <p class="page-sub">Resumen general de DermAsistem</p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">👥</div>
+          <div class="stat-info">
+            <span class="stat-num">{{ estadisticas.totalUsuarios }}</span>
+            <span class="stat-label">Usuarios registrados</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📦</div>
+          <div class="stat-info">
+            <span class="stat-num">{{ estadisticas.totalPedidos }}</span>
+            <span class="stat-label">Pedidos totales</span>
+          </div>
+        </div>
+        <div class="stat-card accent">
+          <div class="stat-icon">💰</div>
+          <div class="stat-info">
+            <span class="stat-num">${{ ingresoTotal.toFixed(2) }}</span>
+            <span class="stat-label">Ingresos totales</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🌿</div>
+          <div class="stat-info">
+            <span class="stat-num">{{ estadisticas.totalProductos }}</span>
+            <span class="stat-label">Productos activos</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">❤️</div>
+          <div class="stat-info">
+            <span class="stat-num">{{ estadisticas.totalFavoritos }}</span>
+            <span class="stat-label">Favoritos marcados</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">⏳</div>
+          <div class="stat-info">
+            <span class="stat-num">{{ pedidosPendientesCount }}</span>
+            <span class="stat-label">Pedidos pendientes</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pedidos recientes -->
+      <div class="section-card" style="margin-top:2rem">
+        <h3 class="card-title">📦 Pedidos recientes</h3>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Usuario</th>
+              <th>Total</th>
+              <th>Estado</th>
+              <th>Fecha</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of pedidos.slice(0,5)">
+              <td class="mono">#{{ p.id.slice(0,8).toUpperCase() }}</td>
+              <td>{{ p.usuarios?.email || '—' }}</td>
+              <td class="bold">${{ p.total?.toFixed(2) }}</td>
+              <td>
+                <span class="estado-pill"
+                  [style.background]="getEstadoColor(p.estado) + '20'"
+                  [style.color]="getEstadoColor(p.estado)">
+                  {{ p.estado }}
+                </span>
+              </td>
+              <td class="muted">{{ p.created_at | date:'dd/MM/yy' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ PRODUCTOS ═══ -->
+    <div *ngIf="tabActiva === 'productos'">
+      <div class="page-header">
+        <div>
+          <h2 class="page-title">Productos</h2>
+          <p class="page-sub">Gestión del catálogo de skincare</p>
+        </div>
+        <button class="btn-primary" (click)="abrirFormProducto()">+ Nuevo producto</button>
+      </div>
+
+      <div class="search-wrap">
+        <input class="search-input" type="text" [(ngModel)]="busquedaProductos"
+               placeholder="🔍 Buscar producto..."/>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Marca</th>
+              <th>Categoría</th>
+              <th>Precio</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of productosFiltrados">
+              <td>
+                <div class="prod-cell">
+                  <span class="prod-emoji-sm" [style.background]="p.color">{{ p.emoji }}</span>
+                  <span class="prod-name">{{ p.nombre }}</span>
+                </div>
+              </td>
+              <td class="muted">{{ p.marca }}</td>
+              <td class="muted">{{ p.categorias?.nombre }}</td>
+              <td class="bold">${{ p.precio }}</td>
+              <td>
+                <span class="estado-pill"
+                  [style.background]="p.activo ? '#3B6D1120' : '#A32D2D20'"
+                  [style.color]="p.activo ? '#3B6D11' : '#A32D2D'">
+                  {{ p.activo ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td>
+                <div class="action-btns">
+                  <button class="btn-edit" (click)="abrirFormProducto(p)">✏️</button>
+                  <button class="btn-del" (click)="eliminarProducto(p.id)">🗑️</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ PEDIDOS ═══ -->
+    <div *ngIf="tabActiva === 'pedidos'">
+      <div class="page-header">
+        <div>
+          <h2 class="page-title">Pedidos</h2>
+          <p class="page-sub">Gestión y seguimiento de órdenes</p>
+        </div>
+      </div>
+
+      <div class="search-wrap">
+        <input class="search-input" type="text" [(ngModel)]="busquedaPedidos"
+               placeholder="🔍 Buscar por ID, email o estado..."/>
+      </div>
+
+      <div class="pedidos-admin-list">
+        <div class="pedido-admin-card" *ngFor="let pedido of pedidosFiltrados">
+          <div class="pedido-admin-header">
+            <div>
+              <span class="pedido-id-tag">#{{ pedido.id.slice(0,8).toUpperCase() }}</span>
+              <span class="pedido-user">{{ pedido.usuarios?.email }}</span>
+              <span class="pedido-date">{{ pedido.created_at | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+            <div class="pedido-admin-right">
+              <span class="pedido-total-tag">${{ pedido.total?.toFixed(2) }}</span>
+              <select class="estado-select"
+                [style.border-color]="getEstadoColor(pedido.estado)"
+                [style.color]="getEstadoColor(pedido.estado)"
+                [value]="pedido.estado"
+                (change)="cambiarEstadoPedido(pedido.id, $any($event.target).value)">
+                <option *ngFor="let e of estadosPedido" [value]="e">{{ e }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="pedido-items-admin">
+            <div class="pedido-item-row" *ngFor="let item of pedido.pedido_items">
+              <span>{{ item.productos?.emoji }} {{ item.productos?.nombre }}</span>
+              <span class="muted">x{{ item.cantidad }}</span>
+              <span class="bold">${{ (item.precio_unitario * item.cantidad).toFixed(2) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ USUARIOS ═══ -->
+    <div *ngIf="tabActiva === 'usuarios'">
+      <div class="page-header">
+        <div>
+          <h2 class="page-title">Usuarios</h2>
+          <p class="page-sub">Usuarios registrados en la plataforma</p>
+        </div>
+      </div>
+
+      <div class="search-wrap">
+        <input class="search-input" type="text" [(ngModel)]="busquedaUsuarios"
+               placeholder="🔍 Buscar por email o nombre..."/>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Usuario</th>
+              <th>Email</th>
+              <th>Teléfono</th>
+              <th>Tipo de piel</th>
+              <th>Registro</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let u of usuariosFiltrados">
+              <td>
+                <div class="user-cell">
+                  <div class="user-avatar-sm">
+                    {{ (u.nombre || u.email || 'U')[0].toUpperCase() }}
+                  </div>
+                  <span>{{ u.nombre || '—' }} {{ u.apellido || '' }}</span>
+                </div>
+              </td>
+              <td class="muted">{{ u.email }}</td>
+              <td class="muted">{{ u.telefono || '—' }}</td>
+              <td>
+                <span class="skin-pill" *ngIf="u.tipo_piel">{{ u.tipo_piel }}</span>
+                <span class="muted" *ngIf="!u.tipo_piel">—</span>
+              </td>
+              <td class="muted">{{ u.created_at | date:'dd/MM/yyyy' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODAL PRODUCTO -->
+  <div class="modal-overlay" *ngIf="mostrarFormProducto" (click)="cerrarFormProducto()">
+    <div class="modal-prod" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ editandoProducto ? 'Editar producto' : 'Nuevo producto' }}</h3>
+        <button class="btn-cerrar" (click)="cerrarFormProducto()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label">Nombre</label>
+            <input class="form-input" [(ngModel)]="productoForm.nombre" placeholder="Nombre del producto"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Marca</label>
+            <input class="form-input" [(ngModel)]="productoForm.marca" placeholder="Marca"/>
+          </div>
+          <div class="form-group full">
+            <label class="form-label">Descripción</label>
+            <textarea class="form-input" [(ngModel)]="productoForm.descripcion"
+                      placeholder="Descripción del producto" rows="3"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Precio ($)</label>
+            <input class="form-input" type="number" [(ngModel)]="productoForm.precio"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Categoría</label>
+            <select class="form-input" [(ngModel)]="productoForm.categoria_id">
+              <option value="">Seleccionar...</option>
+              <option *ngFor="let c of categorias" [value]="c.id">{{ c.nombre }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Emoji</label>
+            <input class="form-input" [(ngModel)]="productoForm.emoji" placeholder="🌿"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Color fondo</label>
+            <input class="form-input" type="color" [(ngModel)]="productoForm.color"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Badge (opcional)</label>
+            <input class="form-input" [(ngModel)]="productoForm.badge" placeholder="Nuevo, Esencial..."/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Estrellas (1-5)</label>
+            <input class="form-input" type="number" min="1" max="5" [(ngModel)]="productoForm.estrellas"/>
+          </div>
+          <div class="form-group full">
+            <label class="form-label">Tipo de piel recomendado</label>
+            <div class="skin-selector">
+              <button *ngFor="let t of tiposPiel" type="button"
+                class="skin-opt" [class.selected]="productoForm.piel.includes(t)"
+                (click)="togglePiel(t)">{{ t }}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-save" (click)="guardarProducto()" [disabled]="guardando">
+          {{ guardando ? 'Guardando...' : editandoProducto ? 'Actualizar' : 'Crear producto' }}
+        </button>
+        <button class="btn-cancel" (click)="cerrarFormProducto()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" [class.show]="mensajeToast">{{ mensajeToast }}</div>
+
+</div>

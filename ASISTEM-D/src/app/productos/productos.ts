@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SupabaseService } from '../supabase.service';
+import { RouterModule } from '@angular/router';
 
 export interface Categoria {
   id: string;
@@ -28,7 +29,7 @@ export interface Producto {
 @Component({
   selector: 'app-productos',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './productos.html',
   styleUrls: ['./productos.css']
 })

@@ -1,0 +1,283 @@
+<!-- Loading -->
+<div class="loading-screen" *ngIf="cargando">
+  <div class="spinner"></div>
+  <p>Cargando tu perfil...</p>
+</div>
+
+<div class="perfil-wrap" *ngIf="!cargando">
+
+  <!-- ── HEADER OSCURO ── -->
+  <div class="perfil-header">
+    <div class="header-nav">
+      <a routerLink="/productos" class="btn-back">← Volver a productos</a>
+      <button class="btn-logout" (click)="cerrarSesion()">Cerrar sesión</button>
+    </div>
+
+    <div class="header-content">
+      <div class="avatar-wrap">
+        <div class="avatar">{{ iniciales }}</div>
+        <div class="avatar-badge">✦</div>
+      </div>
+      <div class="header-info">
+        <h1 class="user-name">{{ nombreCompleto }}</h1>
+        <p class="user-email">{{ usuario?.email }}</p>
+        <div class="user-tags">
+          <span class="tag" *ngIf="perfil?.tipo_piel">🌿 Piel {{ perfil.tipo_piel }}</span>
+          <span class="tag">📦 {{ pedidos.length }} pedidos</span>
+          <span class="tag">❤️ {{ favoritos.length }} favoritos</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-stats">
+      <div class="stat-card">
+        <span class="stat-num">{{ pedidos.length }}</span>
+        <span class="stat-label">Pedidos totales</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num">${{ totalGastado.toFixed(2) }}</span>
+        <span class="stat-label">Total gastado</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num">{{ favoritos.length }}</span>
+        <span class="stat-label">Favoritos</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num">{{ pedidosPendientes }}</span>
+        <span class="stat-label">Pendientes</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TABS ── -->
+  <div class="tabs-bar">
+    <button class="tab-btn" [class.active]="tabActiva === 'resumen'"   (click)="tabActiva = 'resumen'">Resumen</button>
+    <button class="tab-btn" [class.active]="tabActiva === 'pedidos'"   (click)="tabActiva = 'pedidos'">Pedidos</button>
+    <button class="tab-btn" [class.active]="tabActiva === 'favoritos'" (click)="tabActiva = 'favoritos'">Favoritos</button>
+    <button class="tab-btn" [class.active]="tabActiva === 'editar'"    (click)="tabActiva = 'editar'">Mi perfil</button>
+  </div>
+
+  <!-- ── CONTENIDO ── -->
+  <div class="perfil-body">
+
+    <!-- ═══════ TAB RESUMEN ═══════ -->
+    <ng-container *ngIf="tabActiva === 'resumen'">
+      <div class="section-grid">
+
+        <!-- Último pedido -->
+        <div class="section-card">
+          <h3 class="card-title">📦 Último pedido</h3>
+          <div class="empty-msg" *ngIf="pedidos.length === 0">
+            No tienes pedidos aún. ¡Explora el catálogo!
+          </div>
+          <ng-container *ngIf="pedidos.length > 0">
+            <div class="pedido-resumen">
+              <div class="pedido-meta">
+                <span class="pedido-fecha">{{ pedidos[0].created_at | date:'dd/MM/yyyy' }}</span>
+                <span class="estado-badge"
+                  [style.background]="getEstadoColor(pedidos[0].estado) + '20'"
+                  [style.color]="getEstadoColor(pedidos[0].estado)">
+                  {{ pedidos[0].estado }}
+                </span>
+              </div>
+              <div class="pedido-items-list" *ngFor="let item of pedidos[0].pedido_items">
+                <span class="item-emoji">{{ item.productos?.emoji }}</span>
+                <span class="item-info-text">{{ item.productos?.nombre }}</span>
+                <span class="item-qty">x{{ item.cantidad }}</span>
+                <span class="item-price">${{ (item.precio_unitario * item.cantidad).toFixed(2) }}</span>
+              </div>
+              <div class="pedido-total">
+                <span>Total</span>
+                <span class="total-val">${{ pedidos[0].total?.toFixed(2) }}</span>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+
+        <!-- Favoritos recientes -->
+        <div class="section-card">
+          <h3 class="card-title">❤️ Favoritos recientes</h3>
+          <div class="empty-msg" *ngIf="favoritos.length === 0">
+            No tienes favoritos aún. Marca productos con ❤️
+          </div>
+          <div class="fav-mini-grid" *ngIf="favoritos.length > 0">
+            <div class="fav-mini-card" *ngFor="let fav of favoritos.slice(0,4)">
+              <div class="fav-emoji-bg" [style.background]="fav.color">{{ fav.emoji }}</div>
+              <div class="fav-info">
+                <p class="fav-nombre">{{ fav.nombre }}</p>
+                <p class="fav-precio">${{ fav.precio }}</p>
+              </div>
+            </div>
+          </div>
+          <button class="ver-mas-btn" *ngIf="favoritos.length > 4" (click)="tabActiva = 'favoritos'">
+            Ver todos los favoritos →
+          </button>
+        </div>
+
+        <!-- Datos del perfil -->
+        <div class="section-card">
+          <h3 class="card-title">👤 Mis datos</h3>
+          <div class="datos-list">
+            <div class="dato-item">
+              <span class="dato-label">Email</span>
+              <span class="dato-val">{{ usuario?.email }}</span>
+            </div>
+            <div class="dato-item">
+              <span class="dato-label">Nombre</span>
+              <span class="dato-val">{{ perfil?.nombre || '—' }}</span>
+            </div>
+            <div class="dato-item">
+              <span class="dato-label">Apellido</span>
+              <span class="dato-val">{{ perfil?.apellido || '—' }}</span>
+            </div>
+            <div class="dato-item">
+              <span class="dato-label">Teléfono</span>
+              <span class="dato-val">{{ perfil?.telefono || '—' }}</span>
+            </div>
+            <div class="dato-item">
+              <span class="dato-label">Tipo de piel</span>
+              <span class="dato-val">{{ perfil?.tipo_piel || '—' }}</span>
+            </div>
+          </div>
+          <button class="edit-btn" (click)="tabActiva = 'editar'">Editar perfil →</button>
+        </div>
+
+        <!-- Actividad reciente -->
+        <div class="section-card">
+          <h3 class="card-title">📊 Actividad</h3>
+          <div class="actividad-list">
+            <div class="act-item" *ngFor="let p of pedidos.slice(0,4)">
+              <div class="act-icon">📦</div>
+              <div class="act-info">
+                <p class="act-text">Pedido realizado</p>
+                <p class="act-fecha">{{ p.created_at | date:'dd/MM/yyyy HH:mm' }}</p>
+              </div>
+              <span class="act-total">${{ p.total?.toFixed(2) }}</span>
+            </div>
+            <div class="empty-msg" *ngIf="pedidos.length === 0">
+              Sin actividad reciente
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </ng-container>
+
+    <!-- ═══════ TAB PEDIDOS ═══════ -->
+    <ng-container *ngIf="tabActiva === 'pedidos'">
+      <div class="empty-msg centered" *ngIf="pedidos.length === 0">
+        <div class="empty-icon">📦</div>
+        <p>No tienes pedidos aún</p>
+        <a routerLink="/productos" class="go-btn">Explorar productos →</a>
+      </div>
+      <div class="pedidos-list" *ngIf="pedidos.length > 0">
+        <div class="pedido-card" *ngFor="let pedido of pedidos">
+          <div class="pedido-header">
+            <div>
+              <span class="pedido-id">Pedido #{{ pedido.id.slice(0,8).toUpperCase() }}</span>
+              <span class="pedido-fecha-tag">{{ pedido.created_at | date:'dd/MM/yyyy' }}</span>
+            </div>
+            <span class="estado-badge"
+              [style.background]="getEstadoColor(pedido.estado) + '20'"
+              [style.color]="getEstadoColor(pedido.estado)">
+              {{ pedido.estado }}
+            </span>
+          </div>
+          <div class="pedido-productos">
+            <div class="pedido-prod-item" *ngFor="let item of pedido.pedido_items">
+              <span class="prod-emoji">{{ item.productos?.emoji }}</span>
+              <div class="prod-detail">
+                <p class="prod-nombre">{{ item.productos?.nombre }}</p>
+                <p class="prod-marca">{{ item.productos?.marca }}</p>
+              </div>
+              <div class="prod-right">
+                <span class="prod-qty">x{{ item.cantidad }}</span>
+                <span class="prod-precio">${{ (item.precio_unitario * item.cantidad).toFixed(2) }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="pedido-footer">
+            <span class="footer-label">Total del pedido</span>
+            <span class="footer-total">${{ pedido.total?.toFixed(2) }}</span>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- ═══════ TAB FAVORITOS ═══════ -->
+    <ng-container *ngIf="tabActiva === 'favoritos'">
+      <div class="empty-msg centered" *ngIf="favoritos.length === 0">
+        <div class="empty-icon">❤️</div>
+        <p>No tienes favoritos aún</p>
+        <a routerLink="/productos" class="go-btn">Explorar productos →</a>
+      </div>
+      <div class="favoritos-grid" *ngIf="favoritos.length > 0">
+        <div class="fav-card" *ngFor="let fav of favoritos">
+          <div class="fav-img" [style.background]="fav.color">{{ fav.emoji }}</div>
+          <div class="fav-body">
+            <p class="fav-brand">{{ fav.marca }}</p>
+            <p class="fav-name">{{ fav.nombre }}</p>
+            <div class="fav-tags">
+              <span class="skin-tag" *ngFor="let t of fav.piel">{{ t }}</span>
+            </div>
+            <div class="fav-footer">
+              <span class="fav-price">${{ fav.precio }}</span>
+              <a routerLink="/productos" class="fav-btn">Ver producto →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- ═══════ TAB EDITAR ═══════ -->
+    <ng-container *ngIf="tabActiva === 'editar'">
+      <div class="edit-form-wrap">
+        <h2 class="edit-title">Editar perfil</h2>
+        <p class="edit-sub">Actualiza tu información personal y tipo de piel</p>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Nombre</label>
+            <input class="form-input" type="text" [(ngModel)]="editForm.nombre" placeholder="Tu nombre"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Apellido</label>
+            <input class="form-input" type="text" [(ngModel)]="editForm.apellido" placeholder="Tu apellido"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Teléfono</label>
+            <input class="form-input" type="tel" [(ngModel)]="editForm.telefono" placeholder="+591 70000000"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Fecha de nacimiento</label>
+            <input class="form-input" type="date" [(ngModel)]="editForm.fecha_nacimiento"/>
+          </div>
+          <div class="form-group full">
+            <label class="form-label">Tipo de piel</label>
+            <div class="skin-selector">
+              <button
+                *ngFor="let tipo of tiposPiel"
+                class="skin-opt"
+                [class.selected]="editForm.tipo_piel === tipo"
+                (click)="editForm.tipo_piel = tipo">
+                {{ tipo }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn-save" (click)="guardarPerfil()" [disabled]="guardando">
+            {{ guardando ? 'Guardando...' : 'Guardar cambios' }}
+          </button>
+          <button class="btn-cancel" (click)="tabActiva = 'resumen'">Cancelar</button>
+        </div>
+      </div>
+    </ng-container>
+
+  </div>
+
+  <!-- ── TOAST ── -->
+  <div class="toast" [class.show]="mensajeToast">{{ mensajeToast }}</div>
+
+</div>

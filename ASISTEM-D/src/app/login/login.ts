@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -37,7 +37,8 @@ export class LoginComponent {
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private supabase: SupabaseService   // 👈 inyectamos el servicio
+    private route: ActivatedRoute,    // 👈 agregado
+    private supabase: SupabaseService
   ) {
     this.loginForm = this.fb.group({
       email:    ['', [Validators.required, Validators.email]],
@@ -59,12 +60,10 @@ export class LoginComponent {
 
     const { email, password } = this.loginForm.value;
 
-    // 👇 Login real con Supabase
     const { data, error } = await this.supabase.login(email, password);
 
     if (error) {
       this.isLoading = false;
-      // Traducimos los errores al español
       if (error.message.includes('Invalid login credentials')) {
         this.errorMessage = 'Correo o contraseña incorrectos';
       } else if (error.message.includes('Email not confirmed')) {
@@ -75,8 +74,10 @@ export class LoginComponent {
       return;
     }
 
-    // ✅ Login exitoso
+    // ✅ Login exitoso — redirige al returnUrl o a /productos
     this.isLoading = false;
-    this.router.navigate(['/productos']);
+    await this.supabase.crearPerfilSiNoExiste();
+    const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/productos';
+    this.router.navigateByUrl(returnUrl);
   }
 }

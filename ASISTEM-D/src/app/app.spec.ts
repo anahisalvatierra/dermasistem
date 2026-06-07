@@ -6,15 +6,15 @@ describe('AppComponent', () => {
     await TestBed.configureTestingModule({
       imports: [AppComponent],
     })
-    // 👇 ESTA ES LA CLAVE REAL
+    
     .overrideComponent(AppComponent, {
       set: {
-        template: '' // 🚀 eliminamos router-outlet del test
+        template: '' 
       }
     })
     .compileComponents();
   });
-
+//verificacion de ANGULAR componente
   it('should create the app', () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;

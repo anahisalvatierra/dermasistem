@@ -1,0 +1,159 @@
+<!-- ── NAVBAR ── -->
+<nav>
+  <div class="brand">Derm<em>Asistem</em></div>
+  <ul class="nav-links">
+    <li><a href="#features">Características</a></li>
+    <li><a href="#productos">Productos</a></li>
+    <li><a href="#escaneo">Escaneo IA</a></li>
+  </ul>
+  <a routerLink="/login" class="nav-cta">✦ Iniciar sesión</a>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <div class="hero-left">
+    <p class="hero-eyebrow">Sistema inteligente de skincare</p>
+    <h1 class="hero-title">
+      Tu piel merece
+      <em>lo mejor</em>
+    </h1>
+    <p class="hero-desc">
+      Descubre productos de skincare personalizados para tu tipo de piel.
+      Análisis facial con IA, catálogo premium y recomendaciones expertas en un solo lugar.
+    </p>
+    <div class="hero-actions">
+      <a routerLink="/login" class="btn-primary">Comenzar ahora →</a>
+      <a href="#features" class="btn-secondary">Conocer más</a>
+    </div>
+    <div class="hero-stats">
+      <div>
+        <span class="stat-num">12+</span>
+        <span class="stat-label">Productos premium</span>
+      </div>
+      <div>
+        <span class="stat-num">5</span>
+        <span class="stat-label">Categorías</span>
+      </div>
+      <div>
+        <span class="stat-num">IA</span>
+        <span class="stat-label">Análisis facial</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="hero-visual">
+
+      <!-- Tarjeta flotante top right -->
+      <div class="card-float-1">
+        <div class="float-icon">🌸</div>
+        <div class="float-label">Productos activos</div>
+        <div class="float-val">12 items</div>
+      </div>
+
+      <!-- Tarjeta principal -->
+      <div class="card-main">
+        <div class="card-avatar">✨</div>
+        <div class="card-tag">Análisis de piel</div>
+        <h3 class="card-title">Tu diagnóstico personalizado</h3>
+        <p class="card-sub">
+          Basado en análisis facial inteligente, te recomendamos la rutina perfecta para tu tipo de piel.
+        </p>
+
+        <div class="progress-wrap" *ngFor="let item of skinMetrics">
+          <div class="progress-label">
+            <span>{{ item.label }}</span>
+            <span>{{ item.value }}%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="item.value"></div>
+          </div>
+        </div>
+
+        <div class="skin-chips">
+          <span class="chip" *ngFor="let chip of skinChips">{{ chip }}</span>
+        </div>
+      </div>
+
+      <!-- Tarjeta flotante bottom left -->
+      <div class="card-float-2">
+        <div class="float-icon">🔬</div>
+        <div class="float-label">Escaneo facial</div>
+        <div class="float-val">Próximamente</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── FEATURES ── -->
+<section class="features" id="features">
+  <p class="section-label">¿Qué ofrecemos?</p>
+  <h2 class="section-title">Todo lo que tu piel <em>necesita</em></h2>
+  <p class="section-sub">
+    Una plataforma completa que combina tecnología, ciencia y cuidado personal
+    para transformar tu rutina de skincare.
+  </p>
+
+  <div class="features-grid">
+    <div class="feature-card" *ngFor="let feat of features">
+      <div class="feature-icon">{{ feat.icon }}</div>
+      <h3 class="feature-title">{{ feat.title }}</h3>
+      <p class="feature-desc">{{ feat.desc }}</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── PREVIEW PRODUCTOS ── -->
+<section class="preview" id="productos">
+  <div class="preview-header">
+    <div>
+      <p class="section-label" style="text-align:left">Catálogo destacado</p>
+      <h2 class="section-title" style="text-align:left;font-size:2rem">
+        Productos <em>seleccionados</em>
+      </h2>
+    </div>
+    <a routerLink="/login" class="btn-secondary">Ver catálogo completo →</a>
+  </div>
+
+  <div class="preview-cards">
+    <div class="preview-card" *ngFor="let prod of productos">
+      <div class="preview-img" [style.background]="prod.bg">{{ prod.emoji }}</div>
+      <div class="preview-body">
+        <div class="preview-brand">{{ prod.brand }}</div>
+        <div class="preview-name">{{ prod.name }}</div>
+        <div class="preview-footer">
+          <span class="preview-price">{{ prod.price }}</span>
+          <button class="preview-btn" (click)="goToLogin()">+ Agregar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA FINAL ── -->
+<section class="cta-section" id="escaneo">
+  <p class="cta-label">✦ Únete hoy</p>
+  <h2 class="cta-title">Comienza tu rutina<br><em>perfecta</em> hoy</h2>
+  <p class="cta-sub">
+    Crea tu cuenta gratis y descubre los productos ideales para tu tipo de piel en minutos.
+  </p>
+  <div class="cta-actions">
+    <a routerLink="/registro" class="btn-cta-main">Crear cuenta gratis</a>
+    <a routerLink="/login" class="btn-cta-sec">Ya tengo cuenta →</a>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-brand">Derm<em>Asistem</em></div>
+  <p class="footer-text">© 2025 DermAsistem — Sistema inteligente para el cuidado de la piel</p>
+  <!-- 👇 Agrega esto -->
+  <a routerLink="/admin" class="btn-admin-footer">
+    🔐 Acceso administrador
+  </a>
+</footer>
