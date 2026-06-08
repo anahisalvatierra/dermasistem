@@ -39,7 +39,7 @@ export class SupabaseService {
 
   async recuperarPassword(email: string) {
     const { data, error } = await this.supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: 'http://localhost:4200/nueva-password'
+      redirectTo: 'https://dermasistem-gmjc.vercel.app/nueva-password'
     });
     return { data, error };
   }
