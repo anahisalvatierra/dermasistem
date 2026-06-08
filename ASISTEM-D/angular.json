@@ -20,6 +20,11 @@
             "browser": "src/main.ts",
             "index": "src/index.html",
             "tsConfig": "tsconfig.app.json",
+            "optimization": {
+              "fonts": false,
+              "scripts": true,
+              "styles": true
+            },
             "assets": [
               {
                 "glob": "**/*",
@@ -31,16 +36,6 @@
           },
           "configurations": {
             "production": {
-              "optimization": {
-                "fonts": {
-                  "inline": false
-                },
-                "scripts": true,
-                "styles": {
-                  "minify": true,
-                  "inlineCritical": false
-                }
-              },
               "budgets": [
                 {
                   "type": "initial",
