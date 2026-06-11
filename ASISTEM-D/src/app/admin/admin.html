@@ -39,7 +39,6 @@
       <span class="brand-text">Derm<em>Asistem</em></span>
       <span class="brand-badge">Admin</span>
     </div>
-
     <nav class="sidebar-nav">
       <button class="nav-item" [class.active]="tabActiva === 'dashboard'"
               (click)="tabActiva = 'dashboard'">
@@ -61,7 +60,6 @@
         <span class="nav-badge">{{ usuarios.length }}</span>
       </button>
     </nav>
-
     <div class="sidebar-footer">
       <a routerLink="/productos" class="footer-link">← Ver tienda</a>
       <button class="btn-logout-admin" (click)="cerrarSesionAdmin()">Cerrar sesión</button>
@@ -77,7 +75,6 @@
         <h2 class="page-title">Dashboard</h2>
         <p class="page-sub">Resumen general de DermAsistem</p>
       </div>
-
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-icon">👥</div>
@@ -123,17 +120,12 @@
         </div>
       </div>
 
-      <!-- Pedidos recientes -->
       <div class="section-card" style="margin-top:2rem">
         <h3 class="card-title">📦 Pedidos recientes</h3>
         <table class="data-table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Usuario</th>
-              <th>Total</th>
-              <th>Estado</th>
-              <th>Fecha</th>
+              <th>ID</th><th>Usuario</th><th>Total</th><th>Estado</th><th>Fecha</th>
             </tr>
           </thead>
           <tbody>
@@ -164,22 +156,16 @@
         </div>
         <button class="btn-primary" (click)="abrirFormProducto()">+ Nuevo producto</button>
       </div>
-
       <div class="search-wrap">
         <input class="search-input" type="text" [(ngModel)]="busquedaProductos"
                placeholder="🔍 Buscar producto..."/>
       </div>
-
       <div class="table-wrap">
         <table class="data-table">
           <thead>
             <tr>
-              <th>Producto</th>
-              <th>Marca</th>
-              <th>Categoría</th>
-              <th>Precio</th>
-              <th>Estado</th>
-              <th>Acciones</th>
+              <th>Producto</th><th>Marca</th><th>Categoría</th>
+              <th>Precio</th><th>Estado</th><th>Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -203,7 +189,7 @@
               <td>
                 <div class="action-btns">
                   <button class="btn-edit" (click)="abrirFormProducto(p)">✏️</button>
-                  <button class="btn-del" (click)="eliminarProducto(p.id)">🗑️</button>
+                  <button class="btn-del" (click)="confirmarEliminarProducto(p)">🗑️</button>
                 </div>
               </td>
             </tr>
@@ -220,12 +206,10 @@
           <p class="page-sub">Gestión y seguimiento de órdenes</p>
         </div>
       </div>
-
       <div class="search-wrap">
         <input class="search-input" type="text" [(ngModel)]="busquedaPedidos"
                placeholder="🔍 Buscar por ID, email o estado..."/>
       </div>
-
       <div class="pedidos-admin-list">
         <div class="pedido-admin-card" *ngFor="let pedido of pedidosFiltrados">
           <div class="pedido-admin-header">
@@ -264,21 +248,16 @@
           <p class="page-sub">Usuarios registrados en la plataforma</p>
         </div>
       </div>
-
       <div class="search-wrap">
         <input class="search-input" type="text" [(ngModel)]="busquedaUsuarios"
                placeholder="🔍 Buscar por email o nombre..."/>
       </div>
-
       <div class="table-wrap">
         <table class="data-table">
           <thead>
             <tr>
-              <th>Usuario</th>
-              <th>Email</th>
-              <th>Teléfono</th>
-              <th>Tipo de piel</th>
-              <th>Registro</th>
+              <th>Usuario</th><th>Email</th><th>Teléfono</th>
+              <th>Tipo de piel</th><th>Registro</th>
             </tr>
           </thead>
           <tbody>
@@ -311,70 +290,4 @@
     <div class="modal-prod" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h3>{{ editandoProducto ? 'Editar producto' : 'Nuevo producto' }}</h3>
-        <button class="btn-cerrar" (click)="cerrarFormProducto()">✕</button>
-      </div>
-      <div class="modal-body">
-        <div class="form-grid-2">
-          <div class="form-group">
-            <label class="form-label">Nombre</label>
-            <input class="form-input" [(ngModel)]="productoForm.nombre" placeholder="Nombre del producto"/>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Marca</label>
-            <input class="form-input" [(ngModel)]="productoForm.marca" placeholder="Marca"/>
-          </div>
-          <div class="form-group full">
-            <label class="form-label">Descripción</label>
-            <textarea class="form-input" [(ngModel)]="productoForm.descripcion"
-                      placeholder="Descripción del producto" rows="3"></textarea>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Precio ($)</label>
-            <input class="form-input" type="number" [(ngModel)]="productoForm.precio"/>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Categoría</label>
-            <select class="form-input" [(ngModel)]="productoForm.categoria_id">
-              <option value="">Seleccionar...</option>
-              <option *ngFor="let c of categorias" [value]="c.id">{{ c.nombre }}</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Emoji</label>
-            <input class="form-input" [(ngModel)]="productoForm.emoji" placeholder="🌿"/>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Color fondo</label>
-            <input class="form-input" type="color" [(ngModel)]="productoForm.color"/>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Badge (opcional)</label>
-            <input class="form-input" [(ngModel)]="productoForm.badge" placeholder="Nuevo, Esencial..."/>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Estrellas (1-5)</label>
-            <input class="form-input" type="number" min="1" max="5" [(ngModel)]="productoForm.estrellas"/>
-          </div>
-          <div class="form-group full">
-            <label class="form-label">Tipo de piel recomendado</label>
-            <div class="skin-selector">
-              <button *ngFor="let t of tiposPiel" type="button"
-                class="skin-opt" [class.selected]="productoForm.piel.includes(t)"
-                (click)="togglePiel(t)">{{ t }}</button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn-save" (click)="guardarProducto()" [disabled]="guardando">
-          {{ guardando ? 'Guardando...' : editandoProducto ? 'Actualizar' : 'Crear producto' }}
-        </button>
-        <button class="btn-cancel" (click)="cerrarFormProducto()">Cancelar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- TOAST -->
-  <div class="toast" [class.show]="mensajeToast">{{ mensajeToast }}</div>
-
-</div>
+        <butto

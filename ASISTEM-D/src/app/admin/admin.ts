@@ -45,6 +45,17 @@ export class AdminComponent implements OnInit {
   tiposPiel = ['Normal', 'Seca', 'Grasa', 'Mixta', 'Sensible', 'Todo tipo'];
   estadosPedido = ['pendiente', 'completado', 'cancelado'];
 
+  // ── Modal confirmación ──
+  mostrarModalConfirm = false;
+  modalConfirm = {
+    titulo: '',
+    mensaje: '',
+    detalle: '',
+    tipo: 'eliminar' as 'eliminar' | 'editar',
+    emoji: '',
+    accion: () => {}
+  };
+
   // ── Búsqueda ──
   busquedaUsuarios = '';
   busquedaPedidos = '';
@@ -193,12 +204,46 @@ export class AdminComponent implements OnInit {
     }
   }
 
-  async eliminarProducto(id: string): Promise<void> {
-    if (!confirm('¿Desactivar este producto?')) return;
-    const { error } = await this.supabase.eliminarProducto(id);
-    if (error) { this.showToast('⚠️ Error al eliminar'); return; }
-    this.showToast('✅ Producto desactivado');
-    await this.cargarProductos();
+  // ── Modal confirmación ──
+  confirmarEliminarProducto(producto: any): void {
+    this.modalConfirm = {
+      titulo: 'Eliminar producto',
+      mensaje: '¿Estás segura de que deseas desactivar este producto?',
+      detalle: `${producto.emoji} ${producto.nombre} — ${producto.marca} ($${producto.precio})`,
+      tipo: 'eliminar',
+      emoji: '🗑️',
+      accion: async () => {
+        const { error } = await this.supabase.eliminarProducto(producto.id);
+        if (error) { this.showToast('⚠️ Error al eliminar'); return; }
+        this.showToast('✅ Producto desactivado');
+        await this.cargarProductos();
+        this.mostrarModalConfirm = false;
+      }
+    };
+    this.mostrarModalConfirm = true;
+  }
+
+  confirmarGuardarProducto(): void {
+    if (this.editandoProducto) {
+      this.modalConfirm = {
+        titulo: 'Actualizar producto',
+        mensaje: '¿Deseas guardar los cambios en este producto?',
+        detalle: `${this.productoForm.emoji} ${this.productoForm.nombre} — ${this.productoForm.marca}`,
+        tipo: 'editar',
+        emoji: '✏️',
+        accion: async () => {
+          await this.guardarProducto();
+          this.mostrarModalConfirm = false;
+        }
+      };
+      this.mostrarModalConfirm = true;
+    } else {
+      this.guardarProducto();
+    }
+  }
+
+  cancelarModal(): void {
+    this.mostrarModalConfirm = false;
   }
 
   // ── Pedidos ──
@@ -242,6 +287,10 @@ export class AdminComponent implements OnInit {
     return this.pedidos.reduce((a, p) => a + (Number(p.total) || 0), 0);
   }
 
+  get pedidosPendientesCount(): number {
+    return this.pedidos.filter(p => p.estado === 'pendiente').length;
+  }
+
   getEstadoColor(estado: string): string {
     const map: any = {
       'pendiente': '#BA7517',
@@ -260,8 +309,4 @@ export class AdminComponent implements OnInit {
     this.mensajeToast = msg;
     setTimeout(() => this.mensajeToast = '', 3000);
   }
-
-  get pedidosPendientesCount(): number {
-  return this.pedidos.filter(p => p.estado === 'pendiente').length;
-}
 }
