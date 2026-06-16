@@ -1,7 +1,9 @@
-import { Before, After, BeforeAll, AfterAll } from '@cucumber/cucumber';
-import { actorCalled, configure } from '@serenity-js/core';
+import { Before, After, BeforeAll, AfterAll, setDefaultTimeout } from '@cucumber/cucumber';
+import { actorInTheSpotlight, configure } from '@serenity-js/core';
 import { BrowseTheWebWithPlaywright } from '@serenity-js/playwright';
 import { chromium, Browser } from 'playwright';
+
+setDefaultTimeout(30000);
 
 let browser: Browser;
 
@@ -22,7 +24,7 @@ Before(async function () {
 });
 
 After(async function () {
-  // No llamar dismiss() para no cerrar el browser
+  // No cerrar browser entre scenarios
 });
 
 AfterAll(async function () {
