@@ -4,12 +4,15 @@ module.exports = {
     requireModule: ['ts-node/register'],
     format: [
       '@serenity-js/cucumber',
-      'progress'
+      'progress',
+      ['@serenity-js/cucumber', {
+        crew: [
+          ['@serenity-js/serenity-bdd', { outputDirectory: 'target/site/serenity' }],
+          ['@serenity-js/core:ArtifactArchiver', { outputDirectory: 'target/site/serenity' }]
+        ]
+      }]
     ],
     timeout: 30000,
     publishQuiet: true,
-    formatOptions: {
-      outdir: './target/site/serenity'
-    }
   }
 }
