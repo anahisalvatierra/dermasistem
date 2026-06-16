@@ -1,9 +1,9 @@
 pipeline {
     agent any
 
-   tools {
-    nodejs 'NodeJS-22'
-}
+    tools {
+        nodejs 'NodeJS-22'
+    }
 
     stages {
 
@@ -38,6 +38,7 @@ pipeline {
         }
 
         stage('Generar reporte Serenity') {
+            when { expression { true } }
             steps {
                 dir('ASISTEM-D-tests') {
                     bat 'npm run serenity:report'
