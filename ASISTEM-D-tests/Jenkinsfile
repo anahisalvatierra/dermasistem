@@ -59,37 +59,30 @@ pipeline {
         }
     }
 
-    post {
-        always {
-            script {
-                try {
-                    System.setProperty("hudson.model.DirectoryBrowserSupport.CSP", "")
-                } catch (Exception e) {
-                    echo "CSP property ya configurada: ${e.message}"
-                }
-            }
-            publishHTML(target: [
-                allowMissing: true,
-                alwaysLinkToLastBuild: true,
-                keepAll: true,
-                reportDir: 'ASISTEM-D-tests/target/site/serenity',
-                reportFiles: 'index.html',
-                reportName: 'Serenity BDD Report'
-            ])
-            publishHTML(target: [
-                allowMissing: true,
-                alwaysLinkToLastBuild: true,
-                keepAll: true,
-                reportDir: 'ASISTEM-D-tests/target/site',
-                reportFiles: 'cucumber-report.html',
-                reportName: 'Cucumber HTML Report'
-            ])
-        }
-        success {
-            echo '✅ Pruebas ejecutadas correctamente'
-        }
-        failure {
-            echo '❌ Algunas pruebas fallaron'
-        }
+   post {
+    always {
+        publishHTML(target: [
+            allowMissing: true,
+            alwaysLinkToLastBuild: true,
+            keepAll: true,
+            reportDir: 'ASISTEM-D-tests/target/site/serenity',
+            reportFiles: 'index.html',
+            reportName: 'Serenity BDD Report'
+        ])
+        publishHTML(target: [
+            allowMissing: true,
+            alwaysLinkToLastBuild: true,
+            keepAll: true,
+            reportDir: 'ASISTEM-D-tests/target/site',
+            reportFiles: 'cucumber-report.html',
+            reportName: 'Cucumber HTML Report'
+        ])
     }
+    success {
+        echo '✅ Pruebas ejecutadas correctamente'
+    }
+    failure {
+        echo '❌ Algunas pruebas fallaron'
+    }
+}
 }
