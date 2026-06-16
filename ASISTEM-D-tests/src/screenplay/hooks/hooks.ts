@@ -1,15 +1,15 @@
-import { Before, After } from '@cucumber/cucumber';
-import { actorCalled, actorInTheSpotlight, configure } from '@serenity-js/core';
+import { Before, After, BeforeAll, AfterAll } from '@cucumber/cucumber';
+import { actorInTheSpotlight, configure } from '@serenity-js/core';
 import { BrowseTheWebWithPlaywright } from '@serenity-js/playwright';
 import { chromium, Browser } from 'playwright';
 
 let browser: Browser;
 
-Before(async function () {
-  if (!browser || !browser.isConnected()) {
-    browser = await chromium.launch({ headless: true });
-  }
+BeforeAll(async function () {
+  browser = await chromium.launch({ headless: true });
+});
 
+Before(async function () {
   configure({
     actors: {
       prepare(actor) {
@@ -25,6 +25,12 @@ After(async function () {
   try {
     await actorInTheSpotlight().dismiss();
   } catch (e) {
-    // ignorar si ya fue cerrado
+    // ignorar errores al cerrar
+  }
+});
+
+AfterAll(async function () {
+  if (browser) {
+    await browser.close();
   }
 });
