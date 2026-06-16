@@ -51,12 +51,9 @@ When('ingresa email {string} y contraseña {string}', async (email: string, pass
   );
 });
 
-When('completa el formulario con nombre {string}, email {string} y contraseña {string}',
-  async (nombre: string, email: string, password: string) => {
+When('completa el formulario con email {string} y contraseña {string}',
+  async (email: string, password: string) => {
     await actorCalled('Usuario').attemptsTo(
-      Enter.theValue(nombre).into(
-        PageElement.located(By.css('input[formcontrolname="nombre"]')).describedAs('campo nombre')
-      ),
       Enter.theValue(email).into(
         PageElement.located(By.css('input[type="email"]')).describedAs('campo email')
       ),

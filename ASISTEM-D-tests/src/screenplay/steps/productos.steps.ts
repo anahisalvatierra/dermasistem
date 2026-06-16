@@ -19,7 +19,7 @@ When('navega a la sección de productos', async () => {
 When('busca {string}', async (termino: string) => {
   await actorCalled('Usuario').attemptsTo(
     Enter.theValue(termino).into(
-      PageElement.located(By.css('.filters-bar input, input[type="search"], input[type="text"]'))
+      PageElement.located(By.css('input[placeholder="Buscar producto..."]'))
         .describedAs('campo de búsqueda')
     )
   );
@@ -28,7 +28,7 @@ When('busca {string}', async (termino: string) => {
 Then('debería ver al menos un producto listado', async () => {
   await actorCalled('Usuario').attemptsTo(
     Ensure.that(
-      Text.of(PageElement.located(By.css('.products-grid, .wrapper')).describedAs('grilla de productos')),
+      Text.of(PageElement.located(By.css('.products-grid')).describedAs('grilla de productos')),
       includes('')
     )
   );
@@ -37,7 +37,7 @@ Then('debería ver al menos un producto listado', async () => {
 Then('debería ver productos relacionados con {string}', async (termino: string) => {
   await actorCalled('Usuario').attemptsTo(
     Ensure.that(
-      Text.of(PageElement.located(By.css('.products-grid, .wrapper')).describedAs('resultado búsqueda')),
+      Text.of(PageElement.located(By.css('.products-grid')).describedAs('resultado búsqueda')),
       includes('')
     )
   );

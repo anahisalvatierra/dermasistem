@@ -3,7 +3,7 @@ Feature: Registro de nuevo usuario
 
   Scenario: Registro exitoso
     Given que el usuario está en la página de registro
-    When completa el formulario con nombre "Ana Test", email "ana@test.com" y contraseña "Test1234"
+    When completa el formulario con email "ana@test.com" y contraseña "Test1234"
     Then debería recibir confirmación de registro
 
   Scenario: Registro con email ya existente
