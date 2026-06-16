@@ -5,11 +5,6 @@ pipeline {
         nodejs 'NodeJS-22'
     }
 
-    environment {
-        PLAYWRIGHT_BROWSERS_PATH = 'C:\\ProgramData\\Jenkins\\playwright-browsers'
-        PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = '0'
-    }
-
     stages {
 
         stage('Checkout') {
@@ -21,27 +16,12 @@ pipeline {
         stage('Instalar dependencias') {
             steps {
                 dir('ASISTEM-D-tests') {
-                    bat 'npm ci'
+                    bat 'npm ci --prefer-offline'
                 }
             }
         }
 
-        stage('Instalar Playwright browsers') {
-            steps {
-                dir('ASISTEM-D-tests') {
-                    bat '''
-                        if not exist "C:\\ProgramData\\Jenkins\\playwright-browsers\\chromium*" (
-                            echo Instalando Chromium por primera vez...
-                            npx playwright install chromium
-                        ) else (
-                            echo Chromium ya instalado, saltando...
-                        )
-                    '''
-                }
-            }
-        }
-
-        stage('Ejecutar pruebas Serenity') {
+        stage('Ejecutar pruebas') {
             steps {
                 dir('ASISTEM-D-tests') {
                     bat 'npm test'
@@ -61,14 +41,6 @@ pipeline {
             steps {
                 dir('ASISTEM-D-tests') {
                     bat 'node generate-report.js'
-                }
-            }
-        }
-
-        stage('Verificar archivos') {
-            steps {
-                dir('ASISTEM-D-tests') {
-                    bat 'dir target\\site\\serenity'
                 }
             }
         }
@@ -100,7 +72,7 @@ pipeline {
             echo '✅ Pruebas ejecutadas correctamente'
         }
         failure {
-            echo '❌ Algunas pruebas fallaron - revisar reporte'
+            echo '❌ Algunas pruebas fallaron'
         }
     }
 }
