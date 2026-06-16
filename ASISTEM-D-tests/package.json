@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-"scripts": {
-  "test": "cucumber-js",
-  "report": "serenity-bdd run",
-  "test:all": "cucumber-js && serenity-bdd run"
-},
+  "scripts": {
+    "test": "cucumber-js",
+    "serenity:report": "serenity-bdd run",
+    "test:full": "cucumber-js && serenity-bdd run"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
