@@ -45,6 +45,15 @@ pipeline {
                 }
             }
         }
+
+        stage('Generar reporte HTML') {
+            when { expression { true } }
+            steps {
+                dir('ASISTEM-D-tests') {
+                    bat 'node generate-report.js'
+                }
+            }
+        }
     }
 
     post {
@@ -57,12 +66,20 @@ pipeline {
                 reportFiles: 'index.html',
                 reportName: 'Serenity BDD Report'
             ])
+            publishHTML(target: [
+                allowMissing: true,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: 'ASISTEM-D-tests/target/site',
+                reportFiles: 'cucumber-report.html',
+                reportName: 'Cucumber HTML Report'
+            ])
         }
         success {
             echo 'Pruebas ejecutadas correctamente'
         }
         failure {
-            echo 'Algunas pruebas fallaron - revisar reporte Serenity'
+            echo 'Algunas pruebas fallaron - revisar reporte'
         }
     }
 }
