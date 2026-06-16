@@ -15,25 +15,33 @@ pipeline {
 
         stage('Instalar dependencias') {
             steps {
-                bat 'npm ci'
+                dir('ASISTEM-D-tests') {
+                    bat 'npm ci'
+                }
             }
         }
 
         stage('Instalar Playwright browsers') {
             steps {
-                bat 'npx playwright install --with-deps chromium'
+                dir('ASISTEM-D-tests') {
+                    bat 'npx playwright install --with-deps chromium'
+                }
             }
         }
 
         stage('Ejecutar pruebas Serenity') {
             steps {
-                bat 'npm test'
+                dir('ASISTEM-D-tests') {
+                    bat 'npm test'
+                }
             }
         }
 
         stage('Generar reporte Serenity') {
             steps {
-                bat 'npm run serenity:report'
+                dir('ASISTEM-D-tests') {
+                    bat 'npm run serenity:report'
+                }
             }
         }
     }
@@ -41,10 +49,10 @@ pipeline {
     post {
         always {
             publishHTML(target: [
-                allowMissing: false,
+                allowMissing: true,
                 alwaysLinkToLastBuild: true,
                 keepAll: true,
-                reportDir: 'target/site/serenity',
+                reportDir: 'ASISTEM-D-tests/target/site/serenity',
                 reportFiles: 'index.html',
                 reportName: 'Serenity BDD Report'
             ])
