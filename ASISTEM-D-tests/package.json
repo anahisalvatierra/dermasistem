@@ -3,12 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {
+"scripts": {
   "test": "cucumber-js",
-  "test:ui": "cucumber-js --tags @ui",
-  "test:api": "cucumber-js --tags @api",
-  "serenity:report": "serenity-bdd run",
-  "test:full": "cucumber-js && serenity-bdd run"
+  "report": "serenity-bdd run",
+  "test:all": "cucumber-js && serenity-bdd run"
 },
   "keywords": [],
   "author": "",
