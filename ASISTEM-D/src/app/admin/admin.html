@@ -290,4 +290,93 @@
     <div class="modal-prod" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h3>{{ editandoProducto ? 'Editar producto' : 'Nuevo producto' }}</h3>
-        <butto
+        <button class="btn-cerrar" (click)="cerrarFormProducto()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label">Nombre</label>
+            <input class="form-input" [(ngModel)]="productoForm.nombre" placeholder="Nombre del producto"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Marca</label>
+            <input class="form-input" [(ngModel)]="productoForm.marca" placeholder="Marca"/>
+          </div>
+          <div class="form-group full">
+            <label class="form-label">Descripción</label>
+            <textarea class="form-input" [(ngModel)]="productoForm.descripcion"
+                      placeholder="Descripción del producto" rows="3"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Precio ($)</label>
+            <input class="form-input" type="number" [(ngModel)]="productoForm.precio"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Categoría</label>
+            <select class="form-input" [(ngModel)]="productoForm.categoria_id">
+              <option value="">Seleccionar...</option>
+              <option *ngFor="let c of categorias" [value]="c.id">{{ c.nombre }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Emoji</label>
+            <input class="form-input" [(ngModel)]="productoForm.emoji" placeholder="🌿"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Color fondo</label>
+            <input class="form-input" type="color" [(ngModel)]="productoForm.color"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Badge (opcional)</label>
+            <input class="form-input" [(ngModel)]="productoForm.badge" placeholder="Nuevo, Esencial..."/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Estrellas (1-5)</label>
+            <input class="form-input" type="number" min="1" max="5" [(ngModel)]="productoForm.estrellas"/>
+          </div>
+          <div class="form-group full">
+            <label class="form-label">Tipo de piel recomendado</label>
+            <div class="skin-selector">
+              <button *ngFor="let t of tiposPiel" type="button"
+                class="skin-opt" [class.selected]="productoForm.piel.includes(t)"
+                (click)="togglePiel(t)">{{ t }}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-save" (click)="confirmarGuardarProducto()" [disabled]="guardando">
+          {{ guardando ? 'Guardando...' : editandoProducto ? 'Actualizar' : 'Crear producto' }}
+        </button>
+        <button class="btn-cancel" (click)="cerrarFormProducto()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL CONFIRMACIÓN -->
+  <div class="modal-overlay confirm-overlay" *ngIf="mostrarModalConfirm" (click)="cancelarModal()">
+    <div class="modal-confirm" (click)="$event.stopPropagation()">
+      <div class="confirm-icon"
+        [class.icon-delete]="modalConfirm.tipo === 'eliminar'"
+        [class.icon-edit]="modalConfirm.tipo === 'editar'">
+        {{ modalConfirm.emoji }}
+      </div>
+      <h3 class="confirm-title">{{ modalConfirm.titulo }}</h3>
+      <p class="confirm-msg">{{ modalConfirm.mensaje }}</p>
+      <div class="confirm-detalle">{{ modalConfirm.detalle }}</div>
+      <div class="confirm-actions">
+        <button class="btn-confirm-cancel" (click)="cancelarModal()">Cancelar</button>
+        <button class="btn-confirm-ok"
+          [class.btn-danger]="modalConfirm.tipo === 'eliminar'"
+          [class.btn-success]="modalConfirm.tipo === 'editar'"
+          (click)="modalConfirm.accion()">
+          {{ modalConfirm.tipo === 'eliminar' ? 'Sí, eliminar' : 'Sí, guardar cambios' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" [class.show]="mensajeToast">{{ mensajeToast }}</div>
+
+</div>

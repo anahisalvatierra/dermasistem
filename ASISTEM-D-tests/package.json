@@ -1,0 +1,31 @@
+{
+  "name": "asistem-d-tests",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+  "test": "cucumber-js",
+  "test:ui": "cucumber-js --tags @ui",
+  "test:api": "cucumber-js --tags @api",
+  "serenity:report": "serenity-bdd run",
+  "test:full": "cucumber-js && serenity-bdd run"
+},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@cucumber/cucumber": "^12.9.0",
+    "@serenity-js/assertions": "^3.43.4",
+    "@serenity-js/core": "^3.43.4",
+    "@serenity-js/cucumber": "^3.43.4",
+    "@serenity-js/playwright": "^3.43.4",
+    "@serenity-js/rest": "^3.43.4",
+    "@serenity-js/serenity-bdd": "^3.43.4",
+    "@serenity-js/web": "^3.43.4",
+    "@types/node": "^25.9.3",
+    "playwright": "^1.60.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^6.0.3"
+  }
+}
