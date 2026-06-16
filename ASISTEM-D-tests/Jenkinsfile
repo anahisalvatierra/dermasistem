@@ -59,24 +59,11 @@ pipeline {
         }
     }
 
-   post {
+post {
     always {
-        publishHTML(target: [
-            allowMissing: true,
-            alwaysLinkToLastBuild: true,
-            keepAll: true,
-            reportDir: 'ASISTEM-D-tests/target/site/serenity',
-            reportFiles: 'index.html',
-            reportName: 'Serenity BDD Report'
-        ])
-        publishHTML(target: [
-            allowMissing: true,
-            alwaysLinkToLastBuild: true,
-            keepAll: true,
-            reportDir: 'ASISTEM-D-tests/target/site',
-            reportFiles: 'cucumber-report.html',
-            reportName: 'Cucumber HTML Report'
-        ])
+        archiveArtifacts artifacts: 'ASISTEM-D-tests/target/site/serenity/index.html', allowEmptyArchive: true
+        archiveArtifacts artifacts: 'ASISTEM-D-tests/target/site/cucumber-report.html', allowEmptyArchive: true
+        echo '📊 Reportes archivados correctamente'
     }
     success {
         echo '✅ Pruebas ejecutadas correctamente'
