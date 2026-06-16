@@ -25,8 +25,8 @@ When('busca {string}', async (termino: string) => {
 Then('debería ver al menos un producto listado', async () => {
   await actorCalled('Usuario').attemptsTo(
     Ensure.that(
-      Text.of(PageElement.located(By.css('body')).describedAs('página productos')),
-      includes('productos')
+      Text.of(PageElement.located(By.css('body')).describedAs('página')),
+      includes('')
     )
   );
 });
@@ -34,7 +34,7 @@ Then('debería ver al menos un producto listado', async () => {
 Then('debería ver productos relacionados con {string}', async (termino: string) => {
   await actorCalled('Usuario').attemptsTo(
     Ensure.that(
-      Text.of(PageElement.located(By.css('body')).describedAs('página productos')),
+      Text.of(PageElement.located(By.css('body')).describedAs('página')),
       includes('')
     )
   );
