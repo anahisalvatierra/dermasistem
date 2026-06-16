@@ -5,8 +5,12 @@ pipeline {
         nodejs 'NodeJS-22'
     }
 
-    stages {
+    options {
+        timeout(time: 30, unit: 'MINUTES') // Mata el build si pasa 30 min
+        buildDiscarder(logRotator(numToKeepStr: '5'))
+    }
 
+    stages {
         stage('Checkout') {
             steps {
                 checkout scm
@@ -16,7 +20,15 @@ pipeline {
         stage('Instalar dependencias') {
             steps {
                 dir('ASISTEM-D-tests') {
-                    bat 'npm ci --prefer-offline'
+                    bat 'npm ci'
+                }
+            }
+        }
+
+        stage('Instalar Playwright') {
+            steps {
+                dir('ASISTEM-D-tests') {
+                    bat 'npx playwright install chromium'
                 }
             }
         }
