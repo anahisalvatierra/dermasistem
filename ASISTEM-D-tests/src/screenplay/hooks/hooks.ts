@@ -1,5 +1,5 @@
 import { Before, After, BeforeAll, AfterAll } from '@cucumber/cucumber';
-import { actorInTheSpotlight, configure } from '@serenity-js/core';
+import { actorCalled, configure } from '@serenity-js/core';
 import { BrowseTheWebWithPlaywright } from '@serenity-js/playwright';
 import { chromium, Browser } from 'playwright';
 
@@ -22,11 +22,7 @@ Before(async function () {
 });
 
 After(async function () {
-  try {
-    await actorInTheSpotlight().dismiss();
-  } catch (e) {
-    // ignorar errores al cerrar
-  }
+  // No llamar dismiss() para no cerrar el browser
 });
 
 AfterAll(async function () {
