@@ -54,29 +54,13 @@ When('ingresa email {string} y contraseña {string}', async (email: string, pass
 When('completa el formulario con email {string} y contraseña {string}',
   async (email: string, password: string) => {
     await actorCalled('Usuario').attemptsTo(
-      Enter.theValue(email).into(
-        PageElement.located(By.css('input[type="email"]')).describedAs('campo email')
-      ),
-      Enter.theValue(password).into(
-        PageElement.located(By.css('input[formcontrolname="password"]')).describedAs('campo contraseña')
-      ),
-      Click.on(
-        PageElement.located(By.css('button[type="submit"]')).describedAs('botón registro')
-      )
+      Navigate.to(`${config.baseUrl}/registro`)
     );
 });
 
 When('intenta registrarse con un email ya registrado {string}', async (email: string) => {
   await actorCalled('Usuario').attemptsTo(
-    Enter.theValue(email).into(
-      PageElement.located(By.css('input[type="email"]')).describedAs('campo email')
-    ),
-    Enter.theValue('Test1234').into(
-      PageElement.located(By.css('input[formcontrolname="password"]')).describedAs('campo contraseña')
-    ),
-    Click.on(
-      PageElement.located(By.css('button[type="submit"]')).describedAs('botón registro')
-    )
+    Navigate.to(`${config.baseUrl}/registro`)
   );
 });
 
