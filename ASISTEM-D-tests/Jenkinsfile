@@ -6,11 +6,12 @@ pipeline {
     }
 
     options {
-        timeout(time: 30, unit: 'MINUTES') // Mata el build si pasa 30 min
+        timeout(time: 30, unit: 'MINUTES')
         buildDiscarder(logRotator(numToKeepStr: '5'))
     }
 
     stages {
+
         stage('Checkout') {
             steps {
                 checkout scm
@@ -61,7 +62,11 @@ pipeline {
     post {
         always {
             script {
-                System.setProperty("hudson.model.DirectoryBrowserSupport.CSP", "")
+                try {
+                    System.setProperty("hudson.model.DirectoryBrowserSupport.CSP", "")
+                } catch (Exception e) {
+                    echo "CSP property ya configurada: ${e.message}"
+                }
             }
             publishHTML(target: [
                 allowMissing: true,
