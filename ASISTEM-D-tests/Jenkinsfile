@@ -5,6 +5,11 @@ pipeline {
         nodejs 'NodeJS-22'
     }
 
+    environment {
+        PLAYWRIGHT_BROWSERS_PATH = 'C:\\ProgramData\\Jenkins\\playwright-browsers'
+        PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = '0'
+    }
+
     stages {
 
         stage('Checkout') {
@@ -24,7 +29,14 @@ pipeline {
         stage('Instalar Playwright browsers') {
             steps {
                 dir('ASISTEM-D-tests') {
-                    bat 'npx playwright install --with-deps chromium'
+                    bat '''
+                        if not exist "C:\\ProgramData\\Jenkins\\playwright-browsers\\chromium*" (
+                            echo Instalando Chromium por primera vez...
+                            npx playwright install chromium
+                        ) else (
+                            echo Chromium ya instalado, saltando...
+                        )
+                    '''
                 }
             }
         }
@@ -38,7 +50,6 @@ pipeline {
         }
 
         stage('Generar reporte Serenity') {
-            when { expression { true } }
             steps {
                 dir('ASISTEM-D-tests') {
                     bat 'npm run serenity:report'
@@ -47,10 +58,17 @@ pipeline {
         }
 
         stage('Generar reporte HTML') {
-            when { expression { true } }
             steps {
                 dir('ASISTEM-D-tests') {
                     bat 'node generate-report.js'
+                }
+            }
+        }
+
+        stage('Verificar archivos') {
+            steps {
+                dir('ASISTEM-D-tests') {
+                    bat 'dir target\\site\\serenity'
                 }
             }
         }
@@ -58,6 +76,9 @@ pipeline {
 
     post {
         always {
+            script {
+                System.setProperty("hudson.model.DirectoryBrowserSupport.CSP", "")
+            }
             publishHTML(target: [
                 allowMissing: true,
                 alwaysLinkToLastBuild: true,
@@ -76,10 +97,10 @@ pipeline {
             ])
         }
         success {
-            echo 'Pruebas ejecutadas correctamente'
+            echo '✅ Pruebas ejecutadas correctamente'
         }
         failure {
-            echo 'Algunas pruebas fallaron - revisar reporte'
+            echo '❌ Algunas pruebas fallaron - revisar reporte'
         }
     }
 }
