@@ -6,6 +6,7 @@ module.exports = {
       '@serenity-js/cucumber',
       'progress'
     ],
+    worldParameters: {},
     publishQuiet: true,
   }
 }
