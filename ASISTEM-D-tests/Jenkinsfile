@@ -1,0 +1,59 @@
+pipeline {
+    agent any
+
+    tools {
+        nodejs 'NodeJS-18'
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Instalar dependencias') {
+            steps {
+                bat 'npm ci'
+            }
+        }
+
+        stage('Instalar Playwright browsers') {
+            steps {
+                bat 'npx playwright install --with-deps chromium'
+            }
+        }
+
+        stage('Ejecutar pruebas Serenity') {
+            steps {
+                bat 'npm test'
+            }
+        }
+
+        stage('Generar reporte Serenity') {
+            steps {
+                bat 'npm run serenity:report'
+            }
+        }
+    }
+
+    post {
+        always {
+            publishHTML(target: [
+                allowMissing: false,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: 'target/site/serenity',
+                reportFiles: 'index.html',
+                reportName: 'Serenity BDD Report'
+            ])
+        }
+        success {
+            echo 'Pruebas ejecutadas correctamente'
+        }
+        failure {
+            echo 'Algunas pruebas fallaron - revisar reporte Serenity'
+        }
+    }
+}
