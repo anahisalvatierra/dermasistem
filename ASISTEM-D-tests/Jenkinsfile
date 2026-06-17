@@ -1,13 +1,12 @@
 pipeline {
     agent any
 
-    tools {
-        nodejs 'NodeJS-22'
-    }
-
     options {
         timeout(time: 30, unit: 'MINUTES')
-        buildDiscarder(logRotator(numToKeepStr: '5'))
+    }
+
+    tools {
+        nodejs 'NodeJS-22'
     }
 
     stages {
@@ -26,7 +25,7 @@ pipeline {
             }
         }
 
-        stage('Instalar Playwright') {
+        stage('Instalar Playwright browsers') {
             steps {
                 dir('ASISTEM-D-tests') {
                     bat 'npx playwright install chromium'
@@ -34,7 +33,7 @@ pipeline {
             }
         }
 
-        stage('Ejecutar pruebas') {
+        stage('Ejecutar pruebas Serenity') {
             steps {
                 dir('ASISTEM-D-tests') {
                     bat 'npm test'
@@ -43,6 +42,7 @@ pipeline {
         }
 
         stage('Generar reporte Serenity') {
+            when { expression { true } }
             steps {
                 dir('ASISTEM-D-tests') {
                     bat 'npm run serenity:report'
@@ -51,6 +51,7 @@ pipeline {
         }
 
         stage('Generar reporte HTML') {
+            when { expression { true } }
             steps {
                 dir('ASISTEM-D-tests') {
                     bat 'node generate-report.js'
@@ -59,12 +60,30 @@ pipeline {
         }
     }
 
-post {
-    success {
-        echo '✅ Pruebas ejecutadas correctamente'
+    post {
+        always {
+            publishHTML(target: [
+                allowMissing: true,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: 'ASISTEM-D-tests/target/site/serenity',
+                reportFiles: 'index.html',
+                reportName: 'Serenity BDD Report'
+            ])
+            publishHTML(target: [
+                allowMissing: true,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: 'ASISTEM-D-tests/target/site',
+                reportFiles: 'cucumber-report.html',
+                reportName: 'Cucumber HTML Report'
+            ])
+        }
+        success {
+            echo 'Pruebas ejecutadas correctamente'
+        }
+        failure {
+            echo 'Algunas pruebas fallaron - revisar reporte'
+        }
     }
-    failure {
-        echo '❌ Algunas pruebas fallaron'
-    }
-}
 }
