@@ -4,6 +4,7 @@ module.exports = {
     requireModule: ['ts-node/register'],
     format: [
       '@serenity-js/cucumber',
+      'progress',
       'json:target/cucumber-report.json'
     ],
     formatOptions: {
