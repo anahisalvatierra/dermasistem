@@ -4,10 +4,14 @@ module.exports = {
     requireModule: ['ts-node/register'],
     format: [
       '@serenity-js/cucumber',
-      'progress',
       'json:target/cucumber-report.json'
     ],
-    timeout: 30000,
+    formatOptions: {
+      serenity: {
+        outputDirectory: 'target/site/serenity'
+      }
+    },
+    timeout: 60000,
     publishQuiet: true,
   }
 }
