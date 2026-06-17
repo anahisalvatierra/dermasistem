@@ -60,11 +60,6 @@ pipeline {
     }
 
 post {
-    always {
-        archiveArtifacts artifacts: 'ASISTEM-D-tests/target/site/serenity/index.html', allowEmptyArchive: true
-        archiveArtifacts artifacts: 'ASISTEM-D-tests/target/site/cucumber-report.html', allowEmptyArchive: true
-        echo '📊 Reportes archivados correctamente'
-    }
     success {
         echo '✅ Pruebas ejecutadas correctamente'
     }
