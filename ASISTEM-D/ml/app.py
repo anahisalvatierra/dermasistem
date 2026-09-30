@@ -1,24 +1,11 @@
 """
 Backend — API para el módulo de IA de DermAsystem
-====================================================
-Une las Fases 4, 5 y 6: recibe una imagen (+ opcionalmente texto del
-usuario), predice el nivel de severidad de acné con InceptionV3, extrae
-datos del texto con Gemini (NLP) y devuelve recomendaciones de prevención
-y cuidado.
-
-Uso:
-    pip install flask flask-cors google-genai pydantic python-dotenv
-    $env:GEMINI_API_KEY="tu_clave_aqui"     (o crea un archivo .env, ver abajo)
-    python app.py
-
-Prueba rápida sin frontend (PowerShell):
-    curl.exe -F "imagen=@ruta\a_una_foto.jpg" -F "texto=Tengo granos en la frente hace 3 semanas" http://localhost:5000/predecir
-
-Archivo .env opcional (en la misma carpeta ml/), en vez de $env:
-    GEMINI_API_KEY=tu_clave_aqui
+Recibe una imagen (+ texto opcional), predice severidad con InceptionV3,
+extrae datos con Gemini y devuelve recomendaciones.
 """
 
 import os
+import threading
 
 from dotenv import load_dotenv
 load_dotenv()  # lee .env si existe, antes de importar gemini_client
@@ -27,11 +14,14 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from PIL import Image
 
-from predict import predict_image
+from predict import predict_image, get_model
 from gemini_client import extract_symptoms, get_recommendations
 
 app = Flask(__name__)
-CORS(app)  # permite llamadas desde el frontend Angular (localhost:4200, etc.)
+CORS(app)  # permite llamadas desde el frontend Angular
+
+# Precarga el modelo en segundo plano para que la primera petición no espere tanto
+threading.Thread(target=get_model, daemon=True).start()
 
 ALLOWED_EXT = {"jpg", "jpeg", "png"}
 
@@ -67,7 +57,6 @@ def predecir():
         try:
             datos_nlp = extract_symptoms(texto_usuario)
         except Exception as e:
-            # si falla el NLP, seguimos solo con la predicción de imagen
             datos_nlp = {"error_nlp": str(e)}
 
     try:
