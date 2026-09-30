@@ -1,54 +1,36 @@
 import { Before, After, BeforeAll, AfterAll, setDefaultTimeout } from '@cucumber/cucumber';
-import { configure, ArtifactArchiver, Cast } from '@serenity-js/core';
+import { configure, ArtifactArchiver } from '@serenity-js/core';
 import { SerenityBDDReporter } from '@serenity-js/serenity-bdd';
 import { BrowseTheWebWithPlaywright } from '@serenity-js/playwright';
-import { chromium, Browser, BrowserContext } from 'playwright';
+import { Photographer, TakePhotosOfInteractions } from '@serenity-js/web';
+import { chromium, Browser } from 'playwright';
 
-setDefaultTimeout(60000);
+setDefaultTimeout(30000);
 
 let browser: Browser;
-let context: BrowserContext;
 
 BeforeAll(async function () {
-  browser = await chromium.launch({
-    headless: true,
-    timeout: 60000,
-    args: [
-      '--no-sandbox',
-      '--disable-dev-shm-usage',
-      '--disable-gpu',
-      '--disable-extensions',
-      '--disable-background-timer-throttling',
-      '--disable-backgrounding-occluded-windows',
-      '--disable-renderer-backgrounding',
-    ],
-  });
+  browser = await chromium.launch({ headless: true });
 
   configure({
     crew: [
       ArtifactArchiver.storingArtifactsAt('./target/site/serenity'),
       SerenityBDDReporter.fromJSON({}),
+      Photographer.whoWill(TakePhotosOfInteractions),
     ],
-    actors: Cast.where(actor =>
-      actor.whoCan(
-        BrowseTheWebWithPlaywright.using(browser)
-      )
-    ),
+    actors: {
+      prepare(actor) {
+        return actor.whoCan(
+          BrowseTheWebWithPlaywright.using(browser)
+        );
+      },
+    },
   });
 });
 
-Before(async function () {
-  context = await browser.newContext({
-    viewport: { width: 1280, height: 720 },
-    ignoreHTTPSErrors: true,
-  });
-});
+Before(async function () {});
 
-After(async function () {
-  if (context) {
-    await context.close();
-  }
-});
+After(async function () {});
 
 AfterAll(async function () {
   if (browser) {

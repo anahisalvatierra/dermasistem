@@ -1,0 +1,47 @@
+{
+  "modelo": "inception_v3",
+  "accuracy": 0.621,
+  "f1_macro": 0.6124,
+  "f1_ponderado": 0.6011,
+  "parametros": 22065572,
+  "tiempo_entrenamiento_seg": 948.7,
+  "reporte_por_clase": {
+    "nivel_0_leve": {
+      "precision": 0.5897435897435898,
+      "recall": 0.92,
+      "f1-score": 0.71875,
+      "support": 75.0
+    },
+    "nivel_1_moderado": {
+      "precision": 0.8372093023255814,
+      "recall": 0.375,
+      "f1-score": 0.5179856115107914,
+      "support": 96.0
+    },
+    "nivel_2_severo": {
+      "precision": 0.4166666666666667,
+      "recall": 0.5357142857142857,
+      "f1-score": 0.46875,
+      "support": 28.0
+    },
+    "nivel_3_muy_severo": {
+      "precision": 0.6956521739130435,
+      "recall": 0.8,
+      "f1-score": 0.7441860465116279,
+      "support": 20.0
+    },
+    "accuracy": 0.6210045662100456,
+    "macro avg": {
+      "precision": 0.6348179331622203,
+      "recall": 0.6576785714285713,
+      "f1-score": 0.6124179145056048,
+      "support": 219.0
+    },
+    "weighted avg": {
+      "precision": 0.6857651707714729,
+      "recall": 0.6210045662100456,
+      "f1-score": 0.601103149019491,
+      "support": 219.0
+    }
+  }
+}

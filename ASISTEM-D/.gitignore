@@ -42,3 +42,11 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+ml/venv/
+ml/data_raw/
+ml/data_split/
+ml/.env
+ml/__pycache__/
+ml/models/*
+!ml/models/inception_v3.keras
