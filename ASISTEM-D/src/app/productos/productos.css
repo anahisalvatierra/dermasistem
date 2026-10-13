@@ -1,4 +1,3 @@
-
 :host {
   --linen:    #F5E9E2;
   --almond:   #E3B5A4;
@@ -372,6 +371,7 @@
 .escaneo-contenido {
   padding:0 28px 28px;
   display:flex; flex-direction:column; align-items:center; gap:20px;
+  max-height:80vh; overflow-y:auto;
 }
 .pasos-indicador { display:flex; gap:8px; justify-content:center; }
 .paso-dot {
@@ -426,6 +426,93 @@
   border-radius:50%; animation:spin 0.8s linear infinite;
 }
 @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
+/* ── ESCANEO: subir foto ── */
+.escaneo-upload {
+  width:100%; display:flex; flex-direction:column; gap:12px;
+}
+.btn-upload-foto {
+  display:block; text-align:center; cursor:pointer;
+  background:var(--petal); color:var(--wine);
+  border:1.5px dashed var(--almond);
+  padding:14px; border-radius:12px;
+  font-family:'DM Sans',sans-serif; font-size:.85rem; font-weight:500;
+  transition:all .2s;
+}
+.btn-upload-foto:hover { background:var(--almond); color:var(--midnight); }
+
+.foto-preview {
+  width:120px; height:120px; object-fit:cover;
+  border-radius:14px; margin:0 auto;
+  border:2px solid var(--almond);
+  box-shadow:0 6px 20px rgba(22,0,41,0.12);
+}
+
+.escaneo-textarea {
+  width:100%;
+  border:1.5px solid rgba(227,181,164,0.4); border-radius:12px;
+  padding:12px 14px;
+  font-family:'DM Sans',sans-serif; font-size:.82rem;
+  color:var(--midnight); background:var(--linen);
+  resize:vertical; outline:none;
+  transition:border-color .2s, box-shadow .2s;
+}
+.escaneo-textarea::placeholder { color:rgba(119,51,68,0.45); }
+.escaneo-textarea:focus {
+  border-color:var(--lobster);
+  box-shadow:0 0 0 3px rgba(212,77,92,0.12);
+}
+
+/* ── ESCANEO: analizando ── */
+.analizando-wrap {
+  display:flex; flex-direction:column; align-items:center; gap:12px;
+  padding:24px 8px; text-align:center;
+}
+.analizando-wrap p { font-size:.9rem; color:var(--wine); font-weight:500; }
+.analizando-wrap small { font-size:.75rem; color:var(--wine); opacity:.65; }
+
+/* ── ESCANEO: error ── */
+.error-analisis {
+  text-align:center; padding:12px 4px;
+  display:flex; flex-direction:column; gap:14px; width:100%;
+}
+.error-analisis p { color:var(--lobster); font-weight:500; font-size:.88rem; }
+
+/* ── ESCANEO: resultado ── */
+.resultado-analisis {
+  width:100%; display:flex; flex-direction:column; gap:14px;
+}
+.resultado-nivel { text-align:center; }
+.nivel-badge {
+  display:inline-block; padding:.4rem 1.1rem; border-radius:20px;
+  font-size:.78rem; font-weight:600; letter-spacing:.03em;
+  background:var(--lobster); color:white; margin-bottom:6px;
+}
+.nivel-badge.leve { background:#4CAF50; }
+.nivel-badge.moderado { background:#E39B3C; }
+.nivel-badge.severo { background:var(--lobster); }
+.nivel-badge.muy-severo { background:var(--wine); }
+
+.resultado-confianza { font-size:.78rem; color:var(--wine); opacity:.7; }
+
+.resultado-resumen { font-size:.85rem; color:var(--midnight); line-height:1.6; }
+
+.resultado-recomendaciones { text-align:left; }
+.resultado-recomendaciones strong { font-size:.82rem; color:var(--wine); }
+.resultado-recomendaciones ul { margin:8px 0 0; padding-left:18px; display:flex; flex-direction:column; gap:6px; }
+.resultado-recomendaciones li { font-size:.8rem; color:var(--midnight); line-height:1.5; }
+
+.resultado-dermatologo {
+  font-size:.8rem; color:var(--wine);
+  background:var(--linen); border-radius:12px;
+  padding:12px 14px; border:1px solid rgba(227,181,164,0.3);
+}
+.resultado-dermatologo strong { display:block; margin-bottom:4px; color:var(--midnight); }
+
+.resultado-aviso {
+  font-size:.7rem; color:var(--wine); opacity:.6;
+  text-align:center; line-height:1.5;
+}
 
 /* ── RESPONSIVE ── */
 @media(max-width:768px){

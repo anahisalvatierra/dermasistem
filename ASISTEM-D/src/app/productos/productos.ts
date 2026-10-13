@@ -50,6 +50,15 @@ export class ProductosComponent implements OnInit {
   productos: Producto[] = [];
   favoritosIds: Set<string> = new Set();
 
+  // ── Escaneo con IA ──
+  readonly API_URL = 'https://dermasistem.onrender.com';
+  imagenSeleccionada: File | null = null;
+  previewUrl: string | null = null;
+  textoDescripcion = '';
+  analizando = false;
+  resultado: any = null;
+  errorAnalisis: string | null = null;
+
   pasos = [
     { titulo: 'Frente',           subtitulo: 'Mira directamente a la cámara',    por_que: 'Analizamos textura general, poros y manchas en toda la zona T.' },
     { titulo: 'Perfil derecho',   subtitulo: 'Gira tu rostro hacia la derecha',  por_que: 'Detectamos líneas de expresión y flacidez en el contorno facial.' },
@@ -211,11 +220,125 @@ export class ProductosComponent implements OnInit {
     }, 4000);
   }
 
-  escanearPiel(): void { this.mostrarEscaneo = true; this.pasoEscaneo = 0; }
+  // ── Escaneo con IA ──
+
+  escanearPiel(): void {
+    this.mostrarEscaneo = true;
+    this.pasoEscaneo = 0;
+    this.imagenSeleccionada = null;
+    this.previewUrl = null;
+    this.textoDescripcion = '';
+    this.resultado = null;
+    this.errorAnalisis = null;
+  }
+
+  cerrarEscaneo(): void {
+    this.mostrarEscaneo = false;
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || !input.files[0]) return;
+
+    const file = input.files[0];
+    const tiposValidos = ['image/jpeg', 'image/jpg', 'image/png'];
+    if (!tiposValidos.includes(file.type)) {
+      this.showToast('⚠️ Usa una imagen JPG o PNG');
+      return;
+    }
+
+    this.imagenSeleccionada = file;
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.zone.run(() => {
+        this.previewUrl = reader.result as string;
+        this.cd.detectChanges();
+      });
+    };
+    reader.readAsDataURL(file);
+  }
 
   siguientePaso(): void {
-    if (this.pasoEscaneo < this.pasos.length - 1) this.pasoEscaneo++;
-    else { this.mostrarEscaneo = false; this.showToast('🔬 Análisis con IA — ¡Próximamente!'); }
+    if (this.pasoEscaneo === 0 && !this.imagenSeleccionada) {
+      this.showToast('⚠️ Sube una foto para continuar');
+      return;
+    }
+    if (this.pasoEscaneo < this.pasos.length - 1) {
+      this.pasoEscaneo++;
+    } else {
+      this.enviarAnalisis();
+    }
+  }
+
+  async enviarAnalisis(): Promise<void> {
+    if (!this.imagenSeleccionada) {
+      this.showToast('⚠️ Sube una foto para continuar');
+      return;
+    }
+
+    this.zone.run(() => {
+      this.analizando = true;
+      this.errorAnalisis = null;
+      this.resultado = null;
+      this.cd.detectChanges();
+    });
+
+    const formData = new FormData();
+    formData.append('imagen', this.imagenSeleccionada);
+    if (this.textoDescripcion.trim()) {
+      formData.append('texto', this.textoDescripcion.trim());
+    }
+
+    try {
+      const resp = await fetch(`${this.API_URL}/predecir`, {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await resp.json();
+
+      this.zone.run(() => {
+        if (resp.ok) {
+          this.resultado = data;
+        } else {
+          this.errorAnalisis = data?.error || 'No se pudo analizar la imagen.';
+        }
+        this.analizando = false;
+        this.cd.detectChanges();
+      });
+    } catch (e) {
+      this.zone.run(() => {
+        this.errorAnalisis = 'No se pudo conectar con el servidor. Verifica tu conexión e intenta de nuevo.';
+        this.analizando = false;
+        this.cd.detectChanges();
+      });
+    }
+  }
+
+  reintentarAnalisis(): void {
+    this.errorAnalisis = null;
+    this.enviarAnalisis();
+  }
+
+  nivelLegible(nivel: string | undefined): string {
+    if (!nivel) return '';
+    const mapa: Record<string, string> = {
+      nivel_0_leve: 'Leve',
+      nivel_1_moderado: 'Moderado',
+      nivel_2_severo: 'Severo',
+      nivel_3_muy_severo: 'Muy severo',
+    };
+    return mapa[nivel] || nivel;
+  }
+
+  nivelClase(nivel: string | undefined): string {
+    if (!nivel) return '';
+    const mapa: Record<string, string> = {
+      nivel_0_leve: 'leve',
+      nivel_1_moderado: 'moderado',
+      nivel_2_severo: 'severo',
+      nivel_3_muy_severo: 'muy-severo',
+    };
+    return mapa[nivel] || '';
   }
 
   showToast(msg: string): void {

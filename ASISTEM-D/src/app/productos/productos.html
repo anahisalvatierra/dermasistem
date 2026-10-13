@@ -165,145 +165,216 @@
     </div>
 
     <!-- ══════════ MODAL ESCANEO ══════════ -->
-    <div class="modal-overlay escaneo-overlay" *ngIf="mostrarEscaneo" (click)="mostrarEscaneo = false">
+    <div class="modal-overlay escaneo-overlay" *ngIf="mostrarEscaneo" (click)="cerrarEscaneo()">
       <div class="modal-escaneo" (click)="$event.stopPropagation()">
 
         <div class="modal-header">
           <h2>🔬 Escanea tu piel</h2>
-          <button class="btn-cerrar" (click)="mostrarEscaneo = false">✕</button>
+          <button class="btn-cerrar" (click)="cerrarEscaneo()">✕</button>
         </div>
 
         <div class="escaneo-contenido">
 
-          <div class="pasos-indicador">
-            <div class="paso-dot"
-              *ngFor="let p of pasos; let i = index"
-              [class.activo]="i === pasoEscaneo"
-              [class.completado]="i < pasoEscaneo">
+          <!-- ── PASOS (antes de analizar) ── -->
+          <ng-container *ngIf="!analizando && !resultado && !errorAnalisis">
+
+            <div class="pasos-indicador">
+              <div class="paso-dot"
+                *ngFor="let p of pasos; let i = index"
+                [class.activo]="i === pasoEscaneo"
+                [class.completado]="i < pasoEscaneo">
+              </div>
             </div>
-          </div>
 
-          <div class="ilustracion-wrap">
+            <div class="ilustracion-wrap">
 
-            <!-- FRENTE -->
-            <svg *ngIf="pasoEscaneo === 0" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
-              <ellipse cx="100" cy="95" rx="52" ry="62" fill="#F9E4D4" stroke="#C4716A" stroke-width="2"/>
-              <ellipse cx="100" cy="170" rx="38" ry="18" fill="#F0D0C0" stroke="#C4716A" stroke-width="1.5"/>
-              <ellipse cx="80" cy="85" rx="9" ry="6" fill="#fff" stroke="#6B4F47" stroke-width="1.5"/>
-              <circle cx="80" cy="85" r="4" fill="#3D2B1F"/>
-              <ellipse cx="120" cy="85" rx="9" ry="6" fill="#fff" stroke="#6B4F47" stroke-width="1.5"/>
-              <circle cx="120" cy="85" r="4" fill="#3D2B1F"/>
-              <path d="M88 105 Q100 113 112 105" stroke="#C4716A" stroke-width="2" fill="none" stroke-linecap="round"/>
-              <ellipse cx="82" cy="100" rx="5" ry="3" fill="#F0B8A0"/>
-              <ellipse cx="118" cy="100" rx="5" ry="3" fill="#F0B8A0"/>
-              <path d="M95 92 L100 98 L105 92" stroke="#C4A090" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-              <path d="M72 78 Q80 74 88 78" stroke="#6B4F47" stroke-width="2" fill="none" stroke-linecap="round"/>
-              <path d="M112 78 Q120 74 128 78" stroke="#6B4F47" stroke-width="2" fill="none" stroke-linecap="round"/>
-              <rect x="48" y="33" width="104" height="124" rx="12" fill="none" stroke="#C4716A" stroke-width="2" stroke-dasharray="8,4"/>
-              <line x1="48" y1="33" x2="62" y2="33" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
-              <line x1="48" y1="33" x2="48" y2="47" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
-              <line x1="152" y1="33" x2="138" y2="33" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
-              <line x1="152" y1="33" x2="152" y2="47" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
-              <line x1="48" y1="157" x2="62" y2="157" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
-              <line x1="48" y1="157" x2="48" y2="143" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
-              <line x1="152" y1="157" x2="138" y2="157" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
-              <line x1="152" y1="157" x2="152" y2="143" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
-              <line x1="50" y1="95" x2="150" y2="95" stroke="#C4716A" stroke-width="1.5" opacity="0.6">
-                <animate attributeName="y1" values="40;155;40" dur="2s" repeatCount="indefinite"/>
-                <animate attributeName="y2" values="40;155;40" dur="2s" repeatCount="indefinite"/>
-              </line>
-              <text x="100" y="205" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="12" fill="#C4716A" font-weight="500">Vista frontal</text>
-            </svg>
+              <!-- FRENTE -->
+              <svg *ngIf="pasoEscaneo === 0" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+                <ellipse cx="100" cy="95" rx="52" ry="62" fill="#F9E4D4" stroke="#C4716A" stroke-width="2"/>
+                <ellipse cx="100" cy="170" rx="38" ry="18" fill="#F0D0C0" stroke="#C4716A" stroke-width="1.5"/>
+                <ellipse cx="80" cy="85" rx="9" ry="6" fill="#fff" stroke="#6B4F47" stroke-width="1.5"/>
+                <circle cx="80" cy="85" r="4" fill="#3D2B1F"/>
+                <ellipse cx="120" cy="85" rx="9" ry="6" fill="#fff" stroke="#6B4F47" stroke-width="1.5"/>
+                <circle cx="120" cy="85" r="4" fill="#3D2B1F"/>
+                <path d="M88 105 Q100 113 112 105" stroke="#C4716A" stroke-width="2" fill="none" stroke-linecap="round"/>
+                <ellipse cx="82" cy="100" rx="5" ry="3" fill="#F0B8A0"/>
+                <ellipse cx="118" cy="100" rx="5" ry="3" fill="#F0B8A0"/>
+                <path d="M95 92 L100 98 L105 92" stroke="#C4A090" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                <path d="M72 78 Q80 74 88 78" stroke="#6B4F47" stroke-width="2" fill="none" stroke-linecap="round"/>
+                <path d="M112 78 Q120 74 128 78" stroke="#6B4F47" stroke-width="2" fill="none" stroke-linecap="round"/>
+                <rect x="48" y="33" width="104" height="124" rx="12" fill="none" stroke="#C4716A" stroke-width="2" stroke-dasharray="8,4"/>
+                <line x1="48" y1="33" x2="62" y2="33" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
+                <line x1="48" y1="33" x2="48" y2="47" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
+                <line x1="152" y1="33" x2="138" y2="33" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
+                <line x1="152" y1="33" x2="152" y2="47" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
+                <line x1="48" y1="157" x2="62" y2="157" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
+                <line x1="48" y1="157" x2="48" y2="143" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
+                <line x1="152" y1="157" x2="138" y2="157" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
+                <line x1="152" y1="157" x2="152" y2="143" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
+                <line x1="50" y1="95" x2="150" y2="95" stroke="#C4716A" stroke-width="1.5" opacity="0.6">
+                  <animate attributeName="y1" values="40;155;40" dur="2s" repeatCount="indefinite"/>
+                  <animate attributeName="y2" values="40;155;40" dur="2s" repeatCount="indefinite"/>
+                </line>
+                <text x="100" y="205" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="12" fill="#C4716A" font-weight="500">Vista frontal</text>
+              </svg>
 
-            <!-- PERFIL DERECHO -->
-            <svg *ngIf="pasoEscaneo === 1" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
-              <ellipse cx="95" cy="95" rx="45" ry="60" fill="#F9E4D4" stroke="#C4716A" stroke-width="2"/>
-              <path d="M95 35 Q148 50 148 95 Q148 148 110 158 Q95 162 85 158" fill="#F9E4D4" stroke="#C4716A" stroke-width="2"/>
-              <path d="M140 80 L155 75 L150 85 Z" fill="#F0D0C0" stroke="#C4716A" stroke-width="1"/>
-              <ellipse cx="115" cy="85" rx="8" ry="6" fill="#fff" stroke="#6B4F47" stroke-width="1.5"/>
-              <circle cx="117" cy="85" r="3.5" fill="#3D2B1F"/>
-              <path d="M120 108 Q130 112 128 106" stroke="#C4716A" stroke-width="2" fill="none" stroke-linecap="round"/>
-              <ellipse cx="118" cy="100" rx="5" ry="3" fill="#F0B8A0"/>
-              <path d="M107 92 L113 96 L107 100" stroke="#C4A090" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-              <path d="M108 78 Q118 73 128 77" stroke="#6B4F47" stroke-width="2" fill="none" stroke-linecap="round"/>
-              <path d="M85 158 Q95 172 110 170 Q125 168 130 160" fill="#F0D0C0" stroke="#C4716A" stroke-width="1.5"/>
-              <path d="M30 95 L55 95" stroke="#C4716A" stroke-width="2" fill="none" marker-end="url(#arr2)" stroke-linecap="round"/>
-              <defs><marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M2 1L8 5L2 9" fill="none" stroke="#C4716A" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
-              <rect x="42" y="33" width="116" height="128" rx="12" fill="none" stroke="#C4716A" stroke-width="2" stroke-dasharray="8,4"/>
-              <line x1="42" y1="33" x2="56" y2="33" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
-              <line x1="42" y1="33" x2="42" y2="47" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
-              <line x1="158" y1="33" x2="144" y2="33" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
-              <line x1="158" y1="33" x2="158" y2="47" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
-              <line x1="42" y1="161" x2="56" y2="161" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
-              <line x1="42" y1="161" x2="42" y2="147" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
-              <line x1="158" y1="161" x2="144" y2="161" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
-              <line x1="158" y1="161" x2="158" y2="147" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
-              <line x1="100" y1="35" x2="100" y2="160" stroke="#C4716A" stroke-width="1.5" opacity="0.6">
-                <animate attributeName="x1" values="44;156;44" dur="2s" repeatCount="indefinite"/>
-                <animate attributeName="x2" values="44;156;44" dur="2s" repeatCount="indefinite"/>
-              </line>
-              <text x="100" y="205" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="12" fill="#C4716A" font-weight="500">Gira a tu derecha →</text>
-            </svg>
+              <!-- PERFIL DERECHO -->
+              <svg *ngIf="pasoEscaneo === 1" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+                <ellipse cx="95" cy="95" rx="45" ry="60" fill="#F9E4D4" stroke="#C4716A" stroke-width="2"/>
+                <path d="M95 35 Q148 50 148 95 Q148 148 110 158 Q95 162 85 158" fill="#F9E4D4" stroke="#C4716A" stroke-width="2"/>
+                <path d="M140 80 L155 75 L150 85 Z" fill="#F0D0C0" stroke="#C4716A" stroke-width="1"/>
+                <ellipse cx="115" cy="85" rx="8" ry="6" fill="#fff" stroke="#6B4F47" stroke-width="1.5"/>
+                <circle cx="117" cy="85" r="3.5" fill="#3D2B1F"/>
+                <path d="M120 108 Q130 112 128 106" stroke="#C4716A" stroke-width="2" fill="none" stroke-linecap="round"/>
+                <ellipse cx="118" cy="100" rx="5" ry="3" fill="#F0B8A0"/>
+                <path d="M107 92 L113 96 L107 100" stroke="#C4A090" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                <path d="M108 78 Q118 73 128 77" stroke="#6B4F47" stroke-width="2" fill="none" stroke-linecap="round"/>
+                <path d="M85 158 Q95 172 110 170 Q125 168 130 160" fill="#F0D0C0" stroke="#C4716A" stroke-width="1.5"/>
+                <path d="M30 95 L55 95" stroke="#C4716A" stroke-width="2" fill="none" marker-end="url(#arr2)" stroke-linecap="round"/>
+                <defs><marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M2 1L8 5L2 9" fill="none" stroke="#C4716A" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+                <rect x="42" y="33" width="116" height="128" rx="12" fill="none" stroke="#C4716A" stroke-width="2" stroke-dasharray="8,4"/>
+                <line x1="42" y1="33" x2="56" y2="33" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
+                <line x1="42" y1="33" x2="42" y2="47" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
+                <line x1="158" y1="33" x2="144" y2="33" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
+                <line x1="158" y1="33" x2="158" y2="47" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
+                <line x1="42" y1="161" x2="56" y2="161" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
+                <line x1="42" y1="161" x2="42" y2="147" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
+                <line x1="158" y1="161" x2="144" y2="161" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
+                <line x1="158" y1="161" x2="158" y2="147" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
+                <line x1="100" y1="35" x2="100" y2="160" stroke="#C4716A" stroke-width="1.5" opacity="0.6">
+                  <animate attributeName="x1" values="44;156;44" dur="2s" repeatCount="indefinite"/>
+                  <animate attributeName="x2" values="44;156;44" dur="2s" repeatCount="indefinite"/>
+                </line>
+                <text x="100" y="205" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="12" fill="#C4716A" font-weight="500">Gira a tu derecha →</text>
+              </svg>
 
-            <!-- PERFIL IZQUIERDO -->
-            <svg *ngIf="pasoEscaneo === 2" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
-              <ellipse cx="105" cy="95" rx="45" ry="60" fill="#F9E4D4" stroke="#C4716A" stroke-width="2"/>
-              <path d="M105 35 Q52 50 52 95 Q52 148 90 158 Q105 162 115 158" fill="#F9E4D4" stroke="#C4716A" stroke-width="2"/>
-              <path d="M60 80 L45 75 L50 85 Z" fill="#F0D0C0" stroke="#C4716A" stroke-width="1"/>
-              <ellipse cx="85" cy="85" rx="8" ry="6" fill="#fff" stroke="#6B4F47" stroke-width="1.5"/>
-              <circle cx="83" cy="85" r="3.5" fill="#3D2B1F"/>
-              <path d="M80 108 Q70 112 72 106" stroke="#C4716A" stroke-width="2" fill="none" stroke-linecap="round"/>
-              <ellipse cx="82" cy="100" rx="5" ry="3" fill="#F0B8A0"/>
-              <path d="M93 92 L87 96 L93 100" stroke="#C4A090" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-              <path d="M92 78 Q82 73 72 77" stroke="#6B4F47" stroke-width="2" fill="none" stroke-linecap="round"/>
-              <path d="M115 158 Q105 172 90 170 Q75 168 70 160" fill="#F0D0C0" stroke="#C4716A" stroke-width="1.5"/>
-              <path d="M170 95 L145 95" stroke="#C4716A" stroke-width="2" fill="none" marker-end="url(#arr3)" stroke-linecap="round"/>
-              <defs><marker id="arr3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M2 1L8 5L2 9" fill="none" stroke="#C4716A" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
-              <rect x="42" y="33" width="116" height="128" rx="12" fill="none" stroke="#C4716A" stroke-width="2" stroke-dasharray="8,4"/>
-              <line x1="42" y1="33" x2="56" y2="33" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
-              <line x1="42" y1="33" x2="42" y2="47" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
-              <line x1="158" y1="33" x2="144" y2="33" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
-              <line x1="158" y1="33" x2="158" y2="47" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
-              <line x1="42" y1="161" x2="56" y2="161" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
-              <line x1="42" y1="161" x2="42" y2="147" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
-              <line x1="158" y1="161" x2="144" y2="161" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
-              <line x1="158" y1="161" x2="158" y2="147" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
-              <line x1="100" y1="35" x2="100" y2="160" stroke="#C4716A" stroke-width="1.5" opacity="0.6">
-                <animate attributeName="x1" values="156;44;156" dur="2s" repeatCount="indefinite"/>
-                <animate attributeName="x2" values="156;44;156" dur="2s" repeatCount="indefinite"/>
-              </line>
-              <text x="100" y="205" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="12" fill="#C4716A" font-weight="500">← Gira a tu izquierda</text>
-            </svg>
+              <!-- PERFIL IZQUIERDO -->
+              <svg *ngIf="pasoEscaneo === 2" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+                <ellipse cx="105" cy="95" rx="45" ry="60" fill="#F9E4D4" stroke="#C4716A" stroke-width="2"/>
+                <path d="M105 35 Q52 50 52 95 Q52 148 90 158 Q105 162 115 158" fill="#F9E4D4" stroke="#C4716A" stroke-width="2"/>
+                <path d="M60 80 L45 75 L50 85 Z" fill="#F0D0C0" stroke="#C4716A" stroke-width="1"/>
+                <ellipse cx="85" cy="85" rx="8" ry="6" fill="#fff" stroke="#6B4F47" stroke-width="1.5"/>
+                <circle cx="83" cy="85" r="3.5" fill="#3D2B1F"/>
+                <path d="M80 108 Q70 112 72 106" stroke="#C4716A" stroke-width="2" fill="none" stroke-linecap="round"/>
+                <ellipse cx="82" cy="100" rx="5" ry="3" fill="#F0B8A0"/>
+                <path d="M93 92 L87 96 L93 100" stroke="#C4A090" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                <path d="M92 78 Q82 73 72 77" stroke="#6B4F47" stroke-width="2" fill="none" stroke-linecap="round"/>
+                <path d="M115 158 Q105 172 90 170 Q75 168 70 160" fill="#F0D0C0" stroke="#C4716A" stroke-width="1.5"/>
+                <path d="M170 95 L145 95" stroke="#C4716A" stroke-width="2" fill="none" marker-end="url(#arr3)" stroke-linecap="round"/>
+                <defs><marker id="arr3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M2 1L8 5L2 9" fill="none" stroke="#C4716A" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+                <rect x="42" y="33" width="116" height="128" rx="12" fill="none" stroke="#C4716A" stroke-width="2" stroke-dasharray="8,4"/>
+                <line x1="42" y1="33" x2="56" y2="33" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
+                <line x1="42" y1="33" x2="42" y2="47" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
+                <line x1="158" y1="33" x2="144" y2="33" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
+                <line x1="158" y1="33" x2="158" y2="47" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
+                <line x1="42" y1="161" x2="56" y2="161" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
+                <line x1="42" y1="161" x2="42" y2="147" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
+                <line x1="158" y1="161" x2="144" y2="161" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
+                <line x1="158" y1="161" x2="158" y2="147" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
+                <line x1="100" y1="35" x2="100" y2="160" stroke="#C4716A" stroke-width="1.5" opacity="0.6">
+                  <animate attributeName="x1" values="156;44;156" dur="2s" repeatCount="indefinite"/>
+                  <animate attributeName="x2" values="156;44;156" dur="2s" repeatCount="indefinite"/>
+                </line>
+                <text x="100" y="205" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="12" fill="#C4716A" font-weight="500">← Gira a tu izquierda</text>
+              </svg>
 
-            <!-- LISTO -->
-            <svg *ngIf="pasoEscaneo === 3" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="100" cy="95" r="58" fill="#E8F5E8" stroke="#4CAF50" stroke-width="2"/>
-              <circle cx="100" cy="95" r="45" fill="#C8E8C8" stroke="#4CAF50" stroke-width="1.5" stroke-dasharray="6,3">
-                <animateTransform attributeName="transform" type="rotate" from="0 100 95" to="360 100 95" dur="8s" repeatCount="indefinite"/>
-              </circle>
-              <path d="M75 95 L92 112 L128 78" stroke="#2E7D32" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-              <circle cx="100" cy="95" r="3" fill="#4CAF50" opacity="0.5">
-                <animate attributeName="r" values="3;40;3" dur="2s" repeatCount="indefinite"/>
-                <animate attributeName="opacity" values="0.5;0;0.5" dur="2s" repeatCount="indefinite"/>
-              </circle>
-              <text x="100" y="175" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="13" fill="#2E7D32" font-weight="500">¡Análisis completo!</text>
-              <text x="100" y="193" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="11" fill="#4CAF50">Resultados listos pronto</text>
-            </svg>
+              <!-- LISTO -->
+              <svg *ngIf="pasoEscaneo === 3" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="100" cy="95" r="58" fill="#E8F5E8" stroke="#4CAF50" stroke-width="2"/>
+                <circle cx="100" cy="95" r="45" fill="#C8E8C8" stroke="#4CAF50" stroke-width="1.5" stroke-dasharray="6,3">
+                  <animateTransform attributeName="transform" type="rotate" from="0 100 95" to="360 100 95" dur="8s" repeatCount="indefinite"/>
+                </circle>
+                <path d="M75 95 L92 112 L128 78" stroke="#2E7D32" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="100" cy="95" r="3" fill="#4CAF50" opacity="0.5">
+                  <animate attributeName="r" values="3;40;3" dur="2s" repeatCount="indefinite"/>
+                  <animate attributeName="opacity" values="0.5;0;0.5" dur="2s" repeatCount="indefinite"/>
+                </circle>
+                <text x="100" y="175" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="13" fill="#2E7D32" font-weight="500">¡Análisis completo!</text>
+                <text x="100" y="193" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="11" fill="#4CAF50">Resultados listos pronto</text>
+              </svg>
 
-          </div>
-
-          <div class="paso-info">
-            <h3 class="paso-titulo">{{ pasos[pasoEscaneo].titulo }}</h3>
-            <p class="paso-subtitulo">{{ pasos[pasoEscaneo].subtitulo }}</p>
-            <div class="paso-porque">
-              <span class="porque-icon">💡</span>
-              <p>{{ pasos[pasoEscaneo].por_que }}</p>
             </div>
+
+            <div class="paso-info">
+              <h3 class="paso-titulo">{{ pasos[pasoEscaneo].titulo }}</h3>
+              <p class="paso-subtitulo">{{ pasos[pasoEscaneo].subtitulo }}</p>
+              <div class="paso-porque">
+                <span class="porque-icon">💡</span>
+                <p>{{ pasos[pasoEscaneo].por_que }}</p>
+              </div>
+            </div>
+
+            <!-- ── Subir foto + descripción (paso "Frente") ── -->
+            <div class="escaneo-upload" *ngIf="pasoEscaneo === 0">
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/jpg"
+                id="inputFotoPiel"
+                style="display:none"
+                (change)="onFileSelected($event)">
+
+              <label for="inputFotoPiel" class="btn-upload-foto">
+                {{ imagenSeleccionada ? '📷 Cambiar foto' : '📷 Subir foto de tu piel' }}
+              </label>
+
+              <img *ngIf="previewUrl" [src]="previewUrl" alt="Vista previa" class="foto-preview">
+
+              <textarea
+                class="escaneo-textarea"
+                [(ngModel)]="textoDescripcion"
+                placeholder="Cuéntanos más (opcional): zona afectada, hace cuánto tiempo, tipo de piel..."
+                rows="3">
+              </textarea>
+            </div>
+
+            <button class="btn-siguiente" (click)="siguientePaso()">
+              {{ pasoEscaneo < pasos.length - 1 ? 'Continuar →' : 'Finalizar ✦' }}
+            </button>
+
+          </ng-container>
+
+          <!-- ── ANALIZANDO ── -->
+          <div class="analizando-wrap" *ngIf="analizando">
+            <div class="spinner"></div>
+            <p>Analizando tu piel con IA...</p>
+            <small>Puede tardar hasta un minuto la primera vez.</small>
           </div>
 
-          <button class="btn-siguiente" (click)="siguientePaso()">
-            {{ pasoEscaneo < pasos.length - 1 ? 'Continuar →' : 'Finalizar ✦' }}
-          </button>
+          <!-- ── ERROR ── -->
+          <div class="error-analisis" *ngIf="errorAnalisis">
+            <p>⚠️ {{ errorAnalisis }}</p>
+            <button class="btn-siguiente" (click)="reintentarAnalisis()">Reintentar</button>
+          </div>
+
+          <!-- ── RESULTADO ── -->
+          <div class="resultado-analisis" *ngIf="resultado">
+            <div class="resultado-nivel">
+              <span class="nivel-badge" [ngClass]="nivelClase(resultado.prediccion?.nivel)">
+                {{ nivelLegible(resultado.prediccion?.nivel) }}
+              </span>
+              <p class="resultado-confianza">Confianza: {{ (resultado.prediccion?.confianza * 100).toFixed(0) }}%</p>
+            </div>
+
+            <p class="resultado-resumen">{{ resultado.recomendacion?.resumen_situacion }}</p>
+
+            <div class="resultado-recomendaciones" *ngIf="resultado.recomendacion?.recomendaciones_prevencion?.length">
+              <strong>Recomendaciones</strong>
+              <ul>
+                <li *ngFor="let r of resultado.recomendacion.recomendaciones_prevencion">{{ r }}</li>
+              </ul>
+            </div>
+
+            <div class="resultado-dermatologo" *ngIf="resultado.recomendacion?.cuando_consultar_dermatologo">
+              <strong>¿Cuándo ver a un dermatólogo?</strong>
+              {{ resultado.recomendacion.cuando_consultar_dermatologo }}
+            </div>
+
+            <p class="resultado-aviso" *ngIf="resultado.recomendacion?.aviso">
+              {{ resultado.recomendacion.aviso }}
+            </p>
+
+            <button class="btn-siguiente" (click)="cerrarEscaneo()">Cerrar</button>
+          </div>
 
         </div>
       </div>
