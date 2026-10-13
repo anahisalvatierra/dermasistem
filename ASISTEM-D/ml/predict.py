@@ -1,15 +1,18 @@
 """
-Predicción de severidad de acné con el modelo InceptionV3 entrenado.
-======================================================================
-Usa el modelo guardado en la Fase 4 (models/inception_v3.keras).
+Predicción de severidad de acné con InceptionV3 convertido a TFLite.
+Usa models/inception_v3.tflite (mucho más liviano que TensorFlow completo).
 """
 
+import os
+import threading
+
 import numpy as np
-import tensorflow as tf
 from PIL import Image
+from ai_edge_litert.interpreter import Interpreter
 
 IMG_SIZE = (224, 224)
-MODEL_PATH = "models/inception_v3.keras"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(BASE_DIR, "models", "inception_v3.tflite")
 CLASS_NAMES = [
     "nivel_0_leve",
     "nivel_1_moderado",
@@ -17,15 +20,22 @@ CLASS_NAMES = [
     "nivel_3_muy_severo",
 ]
 
-_model = None  # se carga una sola vez y se reutiliza
+_interpreter = None
+_lock = threading.Lock()       # para cargar el modelo una sola vez
+_infer_lock = threading.Lock() # el intérprete no es thread-safe
 
 
 def get_model():
-    global _model
-    if _model is None:
-        print(f"Cargando modelo desde {MODEL_PATH} ...")
-        _model = tf.keras.models.load_model(MODEL_PATH)
-    return _model
+    global _interpreter
+    if _interpreter is None:
+        with _lock:
+            if _interpreter is None:
+                print(f"Cargando modelo desde {MODEL_PATH} ...", flush=True)
+                interp = Interpreter(model_path=MODEL_PATH, num_threads=2)
+                interp.allocate_tensors()
+                _interpreter = interp
+                print("Modelo listo.", flush=True)
+    return _interpreter
 
 
 def predict_image(image: Image.Image) -> dict:
@@ -34,10 +44,15 @@ def predict_image(image: Image.Image) -> dict:
     arr = np.asarray(image, dtype="float32") / 255.0
     arr = np.expand_dims(arr, axis=0)
 
-    model = get_model()
-    probs = model.predict(arr, verbose=0)[0]
-    idx = int(np.argmax(probs))
+    interp = get_model()
+    with _infer_lock:
+        inp = interp.get_input_details()[0]
+        out = interp.get_output_details()[0]
+        interp.set_tensor(inp["index"], arr.astype(inp["dtype"]))
+        interp.invoke()
+        probs = interp.get_tensor(out["index"])[0]
 
+    idx = int(np.argmax(probs))
     return {
         "nivel": CLASS_NAMES[idx],
         "nivel_indice": idx,
@@ -53,5 +68,4 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Uso: python predict.py ruta_a_imagen.jpg")
     else:
-        result = predict_image(Image.open(sys.argv[1]))
-        print(result)
+        print(predict_image(Image.open(sys.argv[1])))
