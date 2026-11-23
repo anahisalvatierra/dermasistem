@@ -32,13 +32,18 @@ from PIL import Image, ImageOps
 
 import predict as predict_mod
 from predict import predict_image, get_model
-from predict_cancer import predict_cancer
-from gemini_client import (
-    extract_symptoms,
-    get_recommendations,
-    extract_symptoms_cancer,
-    get_recommendations_cancer,
-)
+from gemini_client import extract_symptoms, get_recommendations
+
+# El módulo de cáncer es opcional: si faltan sus archivos o su modelo (por ejemplo en Render,
+# donde todavía no está publicado), el servidor igual arranca y el análisis de acné sigue funcionando.
+try:
+    from predict_cancer import predict_cancer
+    from gemini_client import extract_symptoms_cancer, get_recommendations_cancer
+    CANCER_DISPONIBLE = True
+except Exception as _e:
+    predict_cancer = extract_symptoms_cancer = get_recommendations_cancer = None
+    CANCER_DISPONIBLE = False
+    print(f"Aviso: módulo de cáncer no disponible en este servidor ({_e}).", flush=True)
 
 app = Flask(__name__)
 CORS(app)  # permite llamadas desde el frontend Angular
@@ -136,6 +141,7 @@ def salud():
     return jsonify({
         "status": "ok",
         "modelo_acne_listo": predict_mod._interpreter is not None,
+        "cancer_disponible": CANCER_DISPONIBLE,
     })
 
 
@@ -200,6 +206,9 @@ def predecir():
 
 @app.route("/predecir-cancer", methods=["POST"])
 def predecir_cancer():
+    if not CANCER_DISPONIBLE:
+        return jsonify({"error": "El análisis de cáncer de piel no está disponible en este servidor."}), 503
+
     if "imagen" not in request.files:
         return jsonify({"error": "Falta el archivo 'imagen' en el form-data"}), 400
 
