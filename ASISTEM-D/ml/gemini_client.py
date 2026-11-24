@@ -19,12 +19,11 @@ from google import genai
 from google.genai import types
 from pydantic import BaseModel, Field
 
-MODEL_NAME = "gemini-3.8-flash"
-
+MODEL_NAME = "gemini-3.5-flash-lite"
 _client = None
 
 
-def _generate_with_retry(client, model, contents, config, max_retries=4):
+def _generate_with_retry(client, model, contents, config, max_retries=2):
     """Reintenta con espera creciente si el modelo está saturado (503) o
     hay un límite de uso temporal (429)."""
     last_error = None

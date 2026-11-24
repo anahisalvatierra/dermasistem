@@ -21,7 +21,7 @@ import json
 import os
 import threading
 import time
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturoTimeout
 
 from dotenv import load_dotenv
 load_dotenv()  # lee .env si existe, antes de importar gemini_client
@@ -75,6 +75,74 @@ RECOMENDACION_CANCER_RESPALDO = {
     "cuando_consultar_dermatologo": "Consulta a un dermatólogo para que revise cualquier lesión que te preocupe.",
     "aviso": AVISO_CANCER,
 }
+
+AVISO_ACNE = (
+    "Esta evaluación es únicamente informativa y de orientación; no reemplaza la consulta, "
+    "valoración clínica ni el diagnóstico de un médico especialista."
+)
+
+# Si Gemini tarda demasiado o falla, el usuario igual recibe una descripción según su nivel.
+RECOMENDACION_ACNE_RESPALDO = {
+    "nivel_0_leve": {
+        "resumen_situacion": "Tu piel muestra un acné leve, algo muy común que suele responder bien a una rutina básica y constante de cuidado facial.",
+        "recomendaciones_prevencion": [
+            "Lavate la cara dos veces al día, al despertar y antes de dormir, con un limpiador suave adecuado para tu tipo de piel.",
+            "Usá una crema hidratante ligera, en gel o libre de aceites, para hidratar sin tapar los poros.",
+            "Aplicá a diario protector solar con FPS 30 o más, de textura fluida o toque seco.",
+            "Evitá tocar, pellizcar o reventar los granitos para no inflamarlos ni dejar marcas.",
+        ],
+        "cuando_consultar_dermatologo": "Conviene consultar a un dermatólogo si las lesiones aumentan, si aparecen nódulos dolorosos o si no ves mejoría tras varias semanas de cuidados constantes.",
+        "aviso": AVISO_ACNE,
+    },
+    "nivel_1_moderado": {
+        "resumen_situacion": "Tu piel muestra un acné moderado, con más lesiones y algo de inflamación. Con constancia en el cuidado y una buena orientación profesional suele mejorar.",
+        "recomendaciones_prevencion": [
+            "Lavate la cara dos veces al día con un limpiador suave y agua tibia, secándote con toques suaves.",
+            "Evitá frotar fuerte o usar productos muy agresivos, porque pueden irritar y empeorar la inflamación.",
+            "Usá a diario un protector solar no comedogénico, para proteger la piel y evitar manchas.",
+            "No revientes los granitos y cambiá con frecuencia la funda de tu almohada.",
+        ],
+        "cuando_consultar_dermatologo": "Es recomendable consultar a un dermatólogo si no notás mejoría en unas semanas, para evaluar un tratamiento adecuado para tu piel.",
+        "aviso": AVISO_ACNE,
+    },
+    "nivel_2_severo": {
+        "resumen_situacion": "Tu piel muestra un acné severo, con lesiones inflamadas que conviene atender con acompañamiento profesional.",
+        "recomendaciones_prevencion": [
+            "Limpiá tu rostro dos veces al día con un limpiador suave, sin frotar.",
+            "Evitá tocar o reventar las lesiones, ya que esto aumenta la inflamación y puede dejar cicatrices.",
+            "Usá protector solar todos los días, de textura ligera y no comedogénica.",
+            "Evitá cosméticos pesados o grasosos que puedan tapar los poros.",
+        ],
+        "cuando_consultar_dermatologo": "Te recomendamos consultar a un dermatólogo pronto, para recibir un tratamiento indicado según tu caso y reducir el riesgo de cicatrices.",
+        "aviso": AVISO_ACNE,
+    },
+    "nivel_3_muy_severo": {
+        "resumen_situacion": "Tu piel muestra un acné muy severo, con lesiones profundas que requieren atención profesional. Con el tratamiento adecuado se puede mejorar.",
+        "recomendaciones_prevencion": [
+            "Lavate el rostro con un limpiador suave y agua tibia, sin frotar, y secá con toques suaves.",
+            "No toques, aprietes ni revientes las lesiones, para evitar infecciones y cicatrices.",
+            "Usá a diario un protector solar ligero y no comedogénico.",
+            "Evitá probar tratamientos por tu cuenta o productos agresivos que puedan irritar la piel.",
+        ],
+        "cuando_consultar_dermatologo": "Es prioritario que acudás a un dermatólogo lo antes posible, para recibir un tratamiento adecuado y prevenir cicatrices.",
+        "aviso": AVISO_ACNE,
+    },
+}
+
+# Tiempo máximo (segundos) que se espera a Gemini en cada llamada. Se puede cambiar con la variable GEMINI_TIMEOUT.
+GEMINI_TIMEOUT = float(os.environ.get("GEMINI_TIMEOUT", 20))
+_gemini_pool = ThreadPoolExecutor(max_workers=4)
+
+
+def _con_limite(funcion, *args):
+    """Ejecuta una llamada a Gemini y, si pasa de GEMINI_TIMEOUT segundos, lanza un error en vez de esperar."""
+    futuro = _gemini_pool.submit(funcion, *args)
+    return futuro.result(timeout=GEMINI_TIMEOUT)
+
+
+def _respaldo_acne(nivel):
+    return RECOMENDACION_ACNE_RESPALDO.get(nivel) or RECOMENDACION_ACNE_RESPALDO["nivel_0_leve"]
+
 
 # Caché en memoria de las respuestas de Gemini para acné (clave -> (momento, valor)).
 _CACHE = {}
@@ -131,7 +199,7 @@ def _recomendacion_acne(nivel, datos_nlp):
     reco = _cache_get(clave)
     if reco is not None:
         return reco, True
-    reco = get_recommendations(nivel, datos_nlp)
+    reco = _con_limite(get_recommendations, nivel, datos_nlp)
     _cache_set(clave, reco)
     return reco, False
 
@@ -171,15 +239,22 @@ def predecir():
 
     datos_nlp, t_nlp = {}, 0.0
     if futuro_nlp is not None:
-        datos_nlp, t_nlp = futuro_nlp.result()
+        try:
+            datos_nlp, t_nlp = futuro_nlp.result(timeout=GEMINI_TIMEOUT)
+        except FuturoTimeout:
+            print("Aviso: Gemini tardó demasiado en leer el texto; se sigue sin esos datos.", flush=True)
+            datos_nlp, t_nlp = {}, GEMINI_TIMEOUT
     pool.shutdown(wait=False)
     t2 = time.perf_counter()
 
     desde_cache = False
+    usa_respaldo = False
     try:
         recomendacion, desde_cache = _recomendacion_acne(prediccion["nivel"], datos_nlp)
     except Exception as e:
-        recomendacion = {"error_recomendacion": str(e)}
+        print(f"Error en recomendaciones de acné ({type(e).__name__}): {e}", flush=True)
+        recomendacion = _respaldo_acne(prediccion["nivel"])
+        usa_respaldo = True
     t3 = time.perf_counter()
 
     tiempos = {
@@ -201,6 +276,7 @@ def predecir():
         "recomendacion": recomendacion,
         "tiempos_ms": tiempos,
         "desde_cache": desde_cache,
+        "recomendacion_de_respaldo": usa_respaldo,
     })
 
 
@@ -229,17 +305,18 @@ def predecir_cancer():
     datos_nlp = {}
     if texto_usuario:
         try:
-            datos_nlp = extract_symptoms_cancer(texto_usuario)
+            datos_nlp = _con_limite(extract_symptoms_cancer, texto_usuario)
         except Exception as e:
             datos_nlp = {"error_nlp": str(e)}
     t2 = time.perf_counter()
 
     try:
-        recomendacion = get_recommendations_cancer(
-            prediccion["nivel"], prediccion["probabilidad_maligno"], datos_nlp
+        recomendacion = _con_limite(
+            get_recommendations_cancer,
+            prediccion["nivel"], prediccion["probabilidad_maligno"], datos_nlp,
         )
     except Exception as e:
-        print(f"Error en recomendaciones de cáncer: {e}", flush=True)
+        print(f"Error en recomendaciones de cáncer ({type(e).__name__}): {e}", flush=True)
         recomendacion = RECOMENDACION_CANCER_RESPALDO
     t3 = time.perf_counter()
 
