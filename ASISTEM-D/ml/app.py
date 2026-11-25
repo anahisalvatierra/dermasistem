@@ -34,6 +34,14 @@ import predict as predict_mod
 from predict import predict_image, get_model
 from gemini_client import extract_symptoms, get_recommendations
 
+# Estimación del tono de piel (solo para el escáner de acné). Es opcional: si el archivo
+# tono_piel.py no está en el servidor, el escáner funciona igual y simplemente no muestra el tono.
+try:
+    from tono_piel import estimar_tono
+except Exception as _e:
+    estimar_tono = None
+    print(f"Aviso: tono de piel no disponible ({_e}).", flush=True)
+
 # El módulo de cáncer es opcional: si faltan sus archivos o su modelo (por ejemplo en Render,
 # donde todavía no está publicado), el servidor igual arranca y el análisis de acné sigue funcionando.
 try:
@@ -204,12 +212,24 @@ def _recomendacion_acne(nivel, datos_nlp):
     return reco, False
 
 
+def _tono_piel(image):
+    """Devuelve el tono de piel estimado, o None si no se pudo calcular (nunca rompe el escaneo)."""
+    if estimar_tono is None:
+        return None
+    try:
+        return estimar_tono(image)
+    except Exception as e:
+        print(f"Aviso: no se pudo estimar el tono de piel ({type(e).__name__}): {e}", flush=True)
+        return None
+
+
 @app.route("/salud", methods=["GET"])
 def salud():
     return jsonify({
         "status": "ok",
         "modelo_acne_listo": predict_mod._interpreter is not None,
         "cancer_disponible": CANCER_DISPONIBLE,
+        "tono_piel_disponible": estimar_tono is not None,
     })
 
 
@@ -235,6 +255,7 @@ def predecir():
     except Exception as e:
         pool.shutdown(wait=False)
         return jsonify({"error": f"No se pudo procesar la imagen: {e}"}), 400
+    tono_piel = _tono_piel(image)   # solo acné
     t1 = time.perf_counter()
 
     datos_nlp, t_nlp = {}, 0.0
@@ -277,6 +298,7 @@ def predecir():
         "tiempos_ms": tiempos,
         "desde_cache": desde_cache,
         "recomendacion_de_respaldo": usa_respaldo,
+        "tono_piel": tono_piel,
     })
 
 

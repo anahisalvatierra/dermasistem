@@ -6,6 +6,7 @@ import { RecuperarComponent } from './recuperar/recuperar';
 import { NuevaPasswordComponent } from './nueva-password/nueva-password';
 import { ProductosComponent } from './productos/productos';
 import { PerfilComponent } from './perfil/perfil';
+import { RecomendacionesComponent } from './recomendaciones/recomendaciones';
 import { AdminComponent } from './admin/admin';
 import { authGuard } from './guards/auth-guard';
 
@@ -21,4 +22,5 @@ export const routes: Routes = [
   // 👇 Rutas protegidas con AuthGuard
   { path: 'productos', component: ProductosComponent, canActivate: [authGuard] },
   { path: 'perfil',    component: PerfilComponent,    canActivate: [authGuard] },
+  { path: 'recomendaciones', component: RecomendacionesComponent, canActivate: [authGuard] },
 ];

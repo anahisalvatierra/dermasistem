@@ -1,0 +1,150 @@
+<div class="wrapper">
+
+  <div class="loading-screen" *ngIf="cargando">
+    <div class="spinner"></div>
+    <p>Preparando tus recomendaciones...</p>
+  </div>
+
+  <div *ngIf="!cargando">
+
+    <!-- ── NAVBAR ── -->
+    <nav class="navbar">
+      <div class="brand">Derm<span>Asistem</span></div>
+      <ul class="nav-links">
+        <li><a routerLink="/productos">Productos</a></li>
+        <li><a routerLink="/recomendaciones" class="active">Para ti</a></li>
+        <li><a routerLink="/perfil">Mi perfil</a></li>
+      </ul>
+      <div class="nav-right">
+        <a routerLink="/productos" class="btn-scan">✦ Escanea tu piel</a>
+      </div>
+    </nav>
+
+    <!-- ── ENCABEZADO ── -->
+    <div class="page-header">
+      <div class="header-left">
+        <span class="eyebrow">✦ Hecho para tu piel</span>
+        <h1>Recomendado<br><em>para ti</em></h1>
+      </div>
+      <p class="header-desc">Combinamos el resultado de tu escaneo, tu tipo de piel y lo que prefieren personas con gustos parecidos a los tuyos.</p>
+    </div>
+
+    <main class="contenido">
+
+      <!-- ── PERFIL ── -->
+      <section class="panel">
+        <h2 class="panel-titulo">Tu perfil de piel</h2>
+
+        <div class="escaneo-banner" *ngIf="escaneo">
+          <span class="escaneo-icono">🔬</span>
+          <div class="escaneo-texto">
+            <strong>Último escaneo: acné {{ etiquetaNivel(nivelAcne).toLowerCase() }}</strong>
+            <small *ngIf="escaneo.confianza !== null">Confianza del modelo: {{ escaneo.confianza * 100 | number:'1.0-0' }}%</small>
+          </div>
+          <button class="btn-link" (click)="quitarEscaneo()">Quitar</button>
+        </div>
+
+        <div class="grupo">
+          <p class="grupo-label">
+            Nivel de acné
+            <small *ngIf="!escaneo">(opcional: haz un escaneo en Productos o elígelo)</small>
+          </p>
+          <div class="chips">
+            <button class="chip" *ngFor="let n of niveles"
+                    [class.activo]="nivelAcne === n.valor" (click)="seleccionarNivel(n.valor)">
+              {{ n.label }}
+            </button>
+          </div>
+        </div>
+
+        <div class="grupo">
+          <p class="grupo-label">Tipo de piel</p>
+          <div class="chips">
+            <button class="chip" *ngFor="let t of tiposPiel"
+                    [class.activo]="tipoPiel === t" (click)="seleccionarTipo(t)">
+              {{ t }}
+            </button>
+          </div>
+        </div>
+
+        <div class="grupo">
+          <p class="grupo-label">¿Qué quieres cuidar?</p>
+          <div class="chips">
+            <button class="chip" *ngFor="let o of opcionesPreocupacion"
+                    [class.activo]="preocupaciones.includes(o.id)" (click)="togglePreocupacion(o.id)">
+              {{ o.label }}
+            </button>
+          </div>
+        </div>
+
+        <p class="estado-motor" [class.on]="usaColaborativo">
+          <ng-container *ngIf="usaColaborativo">
+            ✓ Personalizado con tus favoritos y calificaciones, además de las de otros usuarios.
+          </ng-container>
+          <ng-container *ngIf="!usaColaborativo">
+            Marca productos como favoritos o califícalos con ★ para afinar las recomendaciones.
+          </ng-container>
+        </p>
+      </section>
+
+      <!-- ── AVISO ── -->
+      <div class="aviso-derma" *ngIf="avisoDermatologo">
+        ⚠️ {{ avisoDermatologo }}
+      </div>
+
+      <!-- ── RESULTADOS ── -->
+      <div class="resultados-info">
+        Mostrando <span>{{ recomendaciones.length }}</span> productos, ordenados por compatibilidad
+      </div>
+
+      <div class="rec-grid">
+        <article class="rec-card" *ngFor="let r of recomendaciones; let i = index">
+
+          <div class="rec-img" [style.background]="r.producto.color">
+            <span class="rec-emoji">{{ r.producto.emoji }}</span>
+            <span class="rec-rank">#{{ i + 1 }}</span>
+            <span class="rec-badge" *ngIf="r.producto.badge">{{ r.producto.badge }}</span>
+            <button class="rec-fav" [class.activo]="esFavorito(r.producto.id)"
+                    (click)="toggleFavorito(r.producto)" aria-label="Favorito">
+              {{ esFavorito(r.producto.id) ? '❤️' : '🤍' }}
+            </button>
+          </div>
+
+          <div class="rec-body">
+            <div class="rec-marca">{{ r.producto.marca }}</div>
+            <div class="rec-nombre">{{ r.producto.nombre }}</div>
+
+            <div class="rec-afinidad">
+              <div class="barra"><div class="barra-fill" [style.width.%]="r.puntaje * 100"></div></div>
+              <span>{{ r.puntaje * 100 | number:'1.0-0' }}% compatible</span>
+            </div>
+
+            <ul class="rec-razones" *ngIf="r.razones.length">
+              <li *ngFor="let t of r.razones">✓ {{ t }}</li>
+            </ul>
+            <p class="rec-adv" *ngIf="r.advertencia">⚠ {{ r.advertencia }}</p>
+
+            <div class="rec-rate">
+              <span class="rate-label">Tu nota</span>
+              <button class="rate-star" *ngFor="let n of estrellasRating"
+                      [class.on]="miNota(r.producto.id) >= n"
+                      (click)="calificar(r.producto, n)">★</button>
+            </div>
+
+            <div class="rec-footer">
+              <div class="rec-precio"><span class="currency">$</span>{{ r.producto.precio.toFixed(2) }}</div>
+              <a class="btn-ver" routerLink="/productos" [queryParams]="{ comprar: r.producto.id }">🛍️ Comprar</a>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <p class="nota-pie">
+        Las recomendaciones son orientativas y no reemplazan la consulta con un dermatólogo.
+        En esta demostración, las calificaciones de otros usuarios son simuladas.
+      </p>
+    </main>
+
+    <div class="toast" [class.show]="mensajeToast">{{ mensajeToast }}</div>
+  </div>
+</div>

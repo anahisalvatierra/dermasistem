@@ -50,3 +50,7 @@ ml/.env
 ml/__pycache__/
 ml/models/*
 !ml/models/inception_v3.keras
+
+ml/data_raw_cancer/
+ml/data_split_cancer/
+ml/results_cancer/

@@ -14,6 +14,7 @@
       <div class="brand">Derm<span>Asistem</span></div>
       <ul class="nav-links">
         <li><a href="#" class="active">Productos</a></li>
+        <li><a routerLink="/recomendaciones">Para ti</a></li>
         <li><a routerLink="/perfil">Mi perfil</a></li>
         <li>
           <a href="#">Favoritos
@@ -178,9 +179,23 @@
           <!-- ── PASOS (antes de analizar) ── -->
           <ng-container *ngIf="!analizando && !resultado && !errorAnalisis">
 
+            <!-- Selector: Acné / Cáncer de piel (solo en el primer paso) -->
+            <div class="tipo-selector" *ngIf="pasoEscaneo === 0">
+              <button type="button" class="tipo-btn"
+                [class.activo]="tipoEscaneo === 'acne'"
+                (click)="seleccionarTipo('acne')">
+                🧴 Acné
+              </button>
+              <button type="button" class="tipo-btn"
+                [class.activo]="tipoEscaneo === 'cancer'"
+                (click)="seleccionarTipo('cancer')">
+                🔎 Cáncer de piel
+              </button>
+            </div>
+
             <div class="pasos-indicador">
               <div class="paso-dot"
-                *ngFor="let p of pasos; let i = index"
+                *ngFor="let p of pasosActuales; let i = index"
                 [class.activo]="i === pasoEscaneo"
                 [class.completado]="i < pasoEscaneo">
               </div>
@@ -188,8 +203,8 @@
 
             <div class="ilustracion-wrap">
 
-              <!-- FRENTE -->
-              <svg *ngIf="pasoEscaneo === 0" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+              <!-- FRENTE (acné) -->
+              <svg *ngIf="tipoEscaneo === 'acne' && pasoEscaneo === 0" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
                 <ellipse cx="100" cy="95" rx="52" ry="62" fill="#F9E4D4" stroke="#C4716A" stroke-width="2"/>
                 <ellipse cx="100" cy="170" rx="38" ry="18" fill="#F0D0C0" stroke="#C4716A" stroke-width="1.5"/>
                 <ellipse cx="80" cy="85" rx="9" ry="6" fill="#fff" stroke="#6B4F47" stroke-width="1.5"/>
@@ -218,8 +233,31 @@
                 <text x="100" y="205" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="12" fill="#C4716A" font-weight="500">Vista frontal</text>
               </svg>
 
-              <!-- PERFIL DERECHO -->
-              <svg *ngIf="pasoEscaneo === 1" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+              <!-- LESIÓN / LUNAR (cáncer de piel) -->
+              <svg *ngIf="tipoEscaneo === 'cancer' && pasoEscaneo === 0" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+                <rect x="30" y="38" width="140" height="118" rx="18" fill="#F9E4D4" stroke="#C4716A" stroke-width="2"/>
+                <path d="M30 118 Q75 104 108 122 T170 116" stroke="#F0D0C0" stroke-width="2" fill="none" opacity="0.8"/>
+                <path d="M30 138 Q80 128 120 142 T170 136" stroke="#F0D0C0" stroke-width="1.5" fill="none" opacity="0.6"/>
+                <path d="M88 90 Q92 74 108 76 Q127 79 124 96 Q122 112 106 112 Q86 111 88 90 Z" fill="#8B5A44" stroke="#5E3A2A" stroke-width="1.5"/>
+                <ellipse cx="105" cy="94" rx="9" ry="7" fill="#5E3A2A" opacity="0.5"/>
+                <rect x="22" y="28" width="156" height="138" rx="12" fill="none" stroke="#C4716A" stroke-width="2" stroke-dasharray="8,4"/>
+                <line x1="22" y1="28" x2="36" y2="28" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
+                <line x1="22" y1="28" x2="22" y2="42" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
+                <line x1="178" y1="28" x2="164" y2="28" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
+                <line x1="178" y1="28" x2="178" y2="42" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
+                <line x1="22" y1="166" x2="36" y2="166" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
+                <line x1="22" y1="166" x2="22" y2="152" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
+                <line x1="178" y1="166" x2="164" y2="166" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
+                <line x1="178" y1="166" x2="178" y2="152" stroke="#C4716A" stroke-width="3" stroke-linecap="round"/>
+                <line x1="24" y1="95" x2="176" y2="95" stroke="#C4716A" stroke-width="1.5" opacity="0.6">
+                  <animate attributeName="y1" values="32;162;32" dur="2s" repeatCount="indefinite"/>
+                  <animate attributeName="y2" values="32;162;32" dur="2s" repeatCount="indefinite"/>
+                </line>
+                <text x="100" y="205" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="12" fill="#C4716A" font-weight="500">Acércate a la lesión</text>
+              </svg>
+
+              <!-- PERFIL DERECHO (acné) -->
+              <svg *ngIf="tipoEscaneo === 'acne' && pasoEscaneo === 1" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
                 <ellipse cx="95" cy="95" rx="45" ry="60" fill="#F9E4D4" stroke="#C4716A" stroke-width="2"/>
                 <path d="M95 35 Q148 50 148 95 Q148 148 110 158 Q95 162 85 158" fill="#F9E4D4" stroke="#C4716A" stroke-width="2"/>
                 <path d="M140 80 L155 75 L150 85 Z" fill="#F0D0C0" stroke="#C4716A" stroke-width="1"/>
@@ -248,8 +286,8 @@
                 <text x="100" y="205" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="12" fill="#C4716A" font-weight="500">Gira a tu derecha →</text>
               </svg>
 
-              <!-- PERFIL IZQUIERDO -->
-              <svg *ngIf="pasoEscaneo === 2" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+              <!-- PERFIL IZQUIERDO (acné) -->
+              <svg *ngIf="tipoEscaneo === 'acne' && pasoEscaneo === 2" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
                 <ellipse cx="105" cy="95" rx="45" ry="60" fill="#F9E4D4" stroke="#C4716A" stroke-width="2"/>
                 <path d="M105 35 Q52 50 52 95 Q52 148 90 158 Q105 162 115 158" fill="#F9E4D4" stroke="#C4716A" stroke-width="2"/>
                 <path d="M60 80 L45 75 L50 85 Z" fill="#F0D0C0" stroke="#C4716A" stroke-width="1"/>
@@ -278,8 +316,8 @@
                 <text x="100" y="205" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="12" fill="#C4716A" font-weight="500">← Gira a tu izquierda</text>
               </svg>
 
-              <!-- LISTO -->
-              <svg *ngIf="pasoEscaneo === 3" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+              <!-- LISTO (último paso, acné y cáncer) -->
+              <svg *ngIf="esPasoListo" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="100" cy="95" r="58" fill="#E8F5E8" stroke="#4CAF50" stroke-width="2"/>
                 <circle cx="100" cy="95" r="45" fill="#C8E8C8" stroke="#4CAF50" stroke-width="1.5" stroke-dasharray="6,3">
                   <animateTransform attributeName="transform" type="rotate" from="0 100 95" to="360 100 95" dur="8s" repeatCount="indefinite"/>
@@ -296,15 +334,25 @@
             </div>
 
             <div class="paso-info">
-              <h3 class="paso-titulo">{{ pasos[pasoEscaneo].titulo }}</h3>
-              <p class="paso-subtitulo">{{ pasos[pasoEscaneo].subtitulo }}</p>
+              <h3 class="paso-titulo">{{ pasosActuales[pasoEscaneo].titulo }}</h3>
+              <p class="paso-subtitulo">{{ pasosActuales[pasoEscaneo].subtitulo }}</p>
               <div class="paso-porque">
                 <span class="porque-icon">💡</span>
-                <p>{{ pasos[pasoEscaneo].por_que }}</p>
+                <p>{{ pasosActuales[pasoEscaneo].por_que }}</p>
               </div>
             </div>
 
-            <!-- ── Subir foto + descripción (paso "Frente") ── -->
+            <!-- Consejos para la foto (solo cáncer de piel) -->
+            <div class="escaneo-consejos" *ngIf="tipoEscaneo === 'cancer' && pasoEscaneo === 0">
+              <strong>Para una buena foto</strong>
+              <ul>
+                <li>Usa luz natural, sin flash ni sombras.</li>
+                <li>Enfoca solo el lunar o la mancha, a unos 10–15 cm.</li>
+                <li>Que la lesión ocupe gran parte de la imagen y se vea nítida.</li>
+              </ul>
+            </div>
+
+            <!-- ── Subir foto + descripción (primer paso) ── -->
             <div class="escaneo-upload" *ngIf="pasoEscaneo === 0">
               <input
                 type="file"
@@ -313,22 +361,45 @@
                 style="display:none"
                 (change)="onFileSelected($event)">
 
-              <label for="inputFotoPiel" class="btn-upload-foto">
-                {{ imagenSeleccionada ? '📷 Cambiar foto' : '📷 Subir foto de tu piel' }}
-              </label>
+              <div class="opciones-foto">
+                <label for="inputFotoPiel" class="btn-upload-foto">
+                  {{ imagenSeleccionada ? '📷 Cambiar foto' : (tipoEscaneo === 'cancer' ? '📷 Subir foto de la lesión' : '📷 Subir foto de tu piel') }}
+                </label>
 
-              <img *ngIf="previewUrl" [src]="previewUrl" alt="Vista previa" class="foto-preview">
+                <!-- Tomar foto con la cámara (solo acné) -->
+                <button type="button" class="btn-upload-foto btn-camara"
+                  *ngIf="tipoEscaneo === 'acne' && !camaraActiva"
+                  (click)="abrirCamara()">
+                  {{ imagenSeleccionada ? '📸 Tomar otra foto' : '📸 Tomar foto' }}
+                </button>
+              </div>
+
+              <p class="camara-error" *ngIf="camaraError">⚠️ {{ camaraError }}</p>
+
+              <div class="camara-panel" *ngIf="camaraActiva">
+                <div class="camara-visor">
+                  <video id="videoCamara" class="camara-video" autoplay playsinline muted></video>
+                  <div class="camara-guia"></div>
+                </div>
+                <p class="camara-ayuda">Centra tu rostro en el óvalo, con buena luz y sin filtros.</p>
+                <div class="camara-acciones">
+                  <button type="button" class="btn-siguiente" (click)="capturarFoto()">📸 Capturar</button>
+                  <button type="button" class="btn-upload-foto" (click)="detenerCamara()">Cancelar</button>
+                </div>
+              </div>
+
+              <img *ngIf="previewUrl && !camaraActiva" [src]="previewUrl" alt="Vista previa" class="foto-preview">
 
               <textarea
                 class="escaneo-textarea"
                 [(ngModel)]="textoDescripcion"
-                placeholder="Cuéntanos más (opcional): zona afectada, hace cuánto tiempo, tipo de piel..."
+                [placeholder]="placeholderDescripcion"
                 rows="3">
               </textarea>
             </div>
 
             <button class="btn-siguiente" (click)="siguientePaso()">
-              {{ pasoEscaneo < pasos.length - 1 ? 'Continuar →' : 'Finalizar ✦' }}
+              {{ pasoEscaneo < pasosActuales.length - 1 ? 'Continuar →' : 'Finalizar ✦' }}
             </button>
 
           </ng-container>
@@ -348,31 +419,84 @@
 
           <!-- ── RESULTADO ── -->
           <div class="resultado-analisis" *ngIf="resultado">
-            <div class="resultado-nivel">
-              <span class="nivel-badge" [ngClass]="nivelClase(resultado.prediccion?.nivel)">
-                {{ nivelLegible(resultado.prediccion?.nivel) }}
-              </span>
-              <p class="resultado-confianza">Confianza: {{ (resultado.prediccion?.confianza * 100).toFixed(0) }}%</p>
-            </div>
 
-            <p class="resultado-resumen">{{ resultado.recomendacion?.resumen_situacion }}</p>
+            <!-- ▸ Resultado de ACNÉ (igual que antes) -->
+            <ng-container *ngIf="!esResultadoCancer">
+              <div class="resultado-nivel">
+                <span class="nivel-badge" [ngClass]="nivelClase(resultado.prediccion?.nivel)">
+                  {{ nivelLegible(resultado.prediccion?.nivel) }}
+                </span>
+                <p class="resultado-confianza">Confianza: {{ (resultado.prediccion?.confianza * 100).toFixed(0) }}%</p>
+              </div>
 
-            <div class="resultado-recomendaciones" *ngIf="resultado.recomendacion?.recomendaciones_prevencion?.length">
-              <strong>Recomendaciones</strong>
-              <ul>
-                <li *ngFor="let r of resultado.recomendacion.recomendaciones_prevencion">{{ r }}</li>
-              </ul>
-            </div>
+              <!-- Tono de piel estimado (solo acné) -->
+              <p class="resultado-confianza resultado-tono" *ngIf="resultado.tono_piel?.categoria">
+                <span class="tono-muestra" [style.background]="resultado.tono_piel.color_hex"></span>
+                Tono de piel estimado: <strong>{{ resultado.tono_piel.categoria }}</strong>
+              </p>
 
-            <div class="resultado-dermatologo" *ngIf="resultado.recomendacion?.cuando_consultar_dermatologo">
-              <strong>¿Cuándo ver a un dermatólogo?</strong>
-              {{ resultado.recomendacion.cuando_consultar_dermatologo }}
-            </div>
+              <p class="resultado-resumen">{{ resultado.recomendacion?.resumen_situacion }}</p>
 
-            <p class="resultado-aviso" *ngIf="resultado.recomendacion?.aviso">
-              {{ resultado.recomendacion.aviso }}
-            </p>
+              <div class="resultado-recomendaciones" *ngIf="resultado.recomendacion?.recomendaciones_prevencion?.length">
+                <strong>Recomendaciones</strong>
+                <ul>
+                  <li *ngFor="let r of resultado.recomendacion.recomendaciones_prevencion">{{ r }}</li>
+                </ul>
+              </div>
 
+              <div class="resultado-dermatologo" *ngIf="resultado.recomendacion?.cuando_consultar_dermatologo">
+                <strong>¿Cuándo ver a un dermatólogo?</strong>
+                {{ resultado.recomendacion.cuando_consultar_dermatologo }}
+              </div>
+
+              <p class="resultado-aviso" *ngIf="resultado.recomendacion?.aviso">
+                {{ resultado.recomendacion.aviso }}
+              </p>
+            </ng-container>
+
+            <!-- ▸ Resultado de CÁNCER DE PIEL -->
+            <ng-container *ngIf="esResultadoCancer">
+              <div class="resultado-nivel">
+                <span class="nivel-badge" [ngClass]="riesgoClase(resultado.prediccion?.nivel)">
+                  {{ resultado.prediccion?.etiqueta }}
+                </span>
+                <p class="resultado-confianza">Resultado orientativo, no es un diagnóstico</p>
+              </div>
+
+              <p class="resultado-resumen">{{ resultado.recomendacion?.resumen_situacion }}</p>
+
+              <div class="resultado-nota">
+                Un resultado de riesgo bajo <strong>no descarta</strong> ninguna lesión. Las fotos de celular son menos precisas que un examen con dermatoscopio.
+              </div>
+
+              <div class="resultado-dermatologo"
+                   [class.urgente]="resultado.prediccion?.nivel === 'riesgo_alto'"
+                   *ngIf="resultado.recomendacion?.cuando_consultar_dermatologo">
+                <strong>¿Cuándo ver a un dermatólogo?</strong>
+                {{ resultado.recomendacion.cuando_consultar_dermatologo }}
+              </div>
+
+              <div class="resultado-alarmas" *ngIf="resultado.recomendacion?.senales_de_alarma?.length">
+                <strong>⚠️ Señales de alarma (regla ABCDE)</strong>
+                <ul>
+                  <li *ngFor="let s of resultado.recomendacion.senales_de_alarma">{{ s }}</li>
+                </ul>
+              </div>
+
+              <div class="resultado-recomendaciones" *ngIf="resultado.recomendacion?.recomendaciones_prevencion?.length">
+                <strong>Cuidados y prevención</strong>
+                <ul>
+                  <li *ngFor="let r of resultado.recomendacion.recomendaciones_prevencion">{{ r }}</li>
+                </ul>
+              </div>
+
+              <p class="resultado-aviso fuerte">
+                {{ resultado.aviso_legal || resultado.recomendacion?.aviso }}
+              </p>
+            </ng-container>
+
+
+            <button class="btn-siguiente" (click)="verRecomendaciones()">Ver productos para ti ✦</button>
             <button class="btn-siguiente" (click)="cerrarEscaneo()">Cerrar</button>
           </div>
 

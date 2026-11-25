@@ -194,6 +194,41 @@ export class SupabaseService {
     }
   }
 
+  // ── RECOMENDACIONES ────────────────────────────────────
+
+  /** Todas las calificaciones (reales + demostración) para el filtrado colaborativo */
+  async getCalificaciones() {
+    const { data, error } = await this.supabase
+      .from('calificaciones')
+      .select('usuario_id, producto_id, nota')
+      .limit(5000);
+    return { data, error };
+  }
+
+  /** Guarda o actualiza la calificación (1 a 5) del usuario actual para un producto */
+  async guardarCalificacion(productoId: string, nota: number) {
+    const usuario = await this.getUsuario();
+    if (!usuario) return { error: 'No autenticado' };
+    const { error } = await this.supabase
+      .from('calificaciones')
+      .upsert(
+        { usuario_id: usuario.id, producto_id: productoId, nota, es_demo: false },
+        { onConflict: 'usuario_id,producto_id' }
+      );
+    return { error };
+  }
+
+  /** Productos que el usuario actual ya compró (para la señal implícita) */
+  async getMisComprasIds() {
+    const usuario = await this.getUsuario();
+    if (!usuario) return { data: [], error: null };
+    const { data, error } = await this.supabase
+      .from('pedidos')
+      .select('pedido_items ( producto_id )')
+      .eq('usuario_id', usuario.id);
+    return { data, error };
+  }
+
   // ── PEDIDOS ────────────────────────────────────────────
 
   async crearPedido(

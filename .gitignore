@@ -1,0 +1,20 @@
+
+# Python
+venv/
+__pycache__/
+*.pyc
+.env
+# Node / Angular
+node_modules/
+dist/
+.angular/
+/package-lock.json
+# Windows
+desktop.ini
+Thumbs.db
+# IA: datos y modelos pesados (el servidor solo necesita los .tflite)
+ASISTEM-D/ml/data_raw/
+ASISTEM-D/ml/data_split/
+ASISTEM-D/ml/data_split_cancer/
+ASISTEM-D/ml/models/*.keras
+ASISTEM-D/ml/models/*.h5
